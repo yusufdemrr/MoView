@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const MoviePosterCarousel = ({ movies }) => {
+  const navigate = useNavigate();
   return (
     <div className="absolute inset-0 overflow-hidden">
       {/* First Row - Moving Right */}
@@ -8,7 +10,8 @@ const MoviePosterCarousel = ({ movies }) => {
         {[...movies, ...movies].map((movie, index) => (
           <div
             key={`row1-${index}`}
-            className="flex-shrink-0 w-32 h-48 rounded-lg overflow-hidden shadow-2xl group"
+            className="flex-shrink-0 w-32 h-48 rounded-lg overflow-hidden shadow-2xl group cursor-pointer"
+            onClick={() => navigate(`/movie/${movie.id}`)}
           >
             {movie.poster_url ? (
               <img
@@ -34,7 +37,8 @@ const MoviePosterCarousel = ({ movies }) => {
         {[...movies.slice().reverse(), ...movies.slice().reverse()].map((movie, index) => (
           <div
             key={`row2-${index}`}
-            className="flex-shrink-0 w-32 h-48 rounded-lg overflow-hidden shadow-2xl group"
+            className="flex-shrink-0 w-32 h-48 rounded-lg overflow-hidden shadow-2xl group cursor-pointer"
+            onClick={() => navigate(`/movie/${movie.id}`)}
           >
             {movie.poster_url ? (
               <img
@@ -60,7 +64,8 @@ const MoviePosterCarousel = ({ movies }) => {
         {[...movies.slice(2), ...movies.slice(0, 2), ...movies].map((movie, index) => (
           <div
             key={`row3-${index}`}
-            className="flex-shrink-0 w-32 h-48 rounded-lg overflow-hidden shadow-2xl group"
+            className="flex-shrink-0 w-32 h-48 rounded-lg overflow-hidden shadow-2xl group cursor-pointer"
+            onClick={() => navigate(`/movie/${movie.id}`)}
           >
             {movie.poster_url ? (
               <img

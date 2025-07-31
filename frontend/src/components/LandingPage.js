@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { moviesApi } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 import MoviePosterCarousel from './MoviePosterCarousel';
 
 const LandingPage = () => {
+  const navigate = useNavigate();
+  const { user, logout, isAuthenticated } = useAuth();
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -70,14 +74,53 @@ const LandingPage = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <button className="group relative px-12 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white font-semibold text-lg shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 hover:from-purple-500 hover:to-pink-500">
-                <span className="relative z-10">Get Started</span>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 blur opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
-              </button>
-              
-              <button className="px-12 py-4 border-2 border-purple-500/50 rounded-full text-purple-300 font-semibold text-lg hover:bg-purple-500/10 hover:border-purple-400 transition-all duration-300 backdrop-blur-sm">
-                Learn More
-              </button>
+              {isAuthenticated ? (
+                <>
+                  <button 
+                    onClick={() => navigate('/my-ratings')}
+                    className="group relative px-12 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white font-semibold text-lg shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 hover:from-purple-500 hover:to-pink-500"
+                  >
+                    <span className="relative z-10">My Ratings</span>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 blur opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
+                  </button>
+                  
+                  <button 
+                    onClick={() => {
+                      // Scroll to movie features or show popular movies
+                      const featuresSection = document.querySelector('.animate-fade-in-delayed');
+                      if (featuresSection) {
+                        featuresSection.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                    className="px-12 py-4 border-2 border-purple-500/50 rounded-full text-purple-300 font-semibold text-lg hover:bg-purple-500/10 hover:border-purple-400 transition-all duration-300 backdrop-blur-sm"
+                  >
+                    Explore Movies
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button 
+                    onClick={() => navigate('/register')}
+                    className="group relative px-12 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white font-semibold text-lg shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 hover:from-purple-500 hover:to-pink-500"
+                  >
+                    <span className="relative z-10">Get Started</span>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 blur opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
+                  </button>
+                  
+                  <button 
+                    onClick={() => {
+                      // Scroll to movie features or show popular movies
+                      const featuresSection = document.querySelector('.animate-fade-in-delayed');
+                      if (featuresSection) {
+                        featuresSection.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                    className="px-12 py-4 border-2 border-purple-500/50 rounded-full text-purple-300 font-semibold text-lg hover:bg-purple-500/10 hover:border-purple-400 transition-all duration-300 backdrop-blur-sm"
+                  >
+                    Explore Movies
+                  </button>
+                </>
+              )}
             </div>
 
             {/* Sign In Link */}
@@ -88,6 +131,16 @@ const LandingPage = () => {
                   Sign In
                 </button>
               </p>
+              
+              {/* Temporary Debug Link */}
+              {/* <div className="mt-4">
+                <button 
+                  onClick={() => navigate('/test')}
+                  className="text-yellow-400 hover:text-yellow-300 font-medium underline underline-offset-4 decoration-yellow-400/50 hover:decoration-yellow-300 transition-colors duration-200 text-sm"
+                >
+                  🔧 Debug Test Page (Temporary)
+                </button>
+              </div> */}
             </div>
           </div>
 

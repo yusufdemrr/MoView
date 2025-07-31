@@ -35,10 +35,17 @@ async def health_check():
     return {"status": "healthy"}
 
 # Include routers
-from routers import movies
+from routers import movies, reviews, sentiment, auth
 app.include_router(movies.router, prefix="/movies", tags=["movies"])
-# app.include_router(reviews.router, prefix="/reviews", tags=["reviews"])
-# app.include_router(auth.router, prefix="/auth", tags=["authentication"])
+app.include_router(reviews.router, prefix="/reviews", tags=["reviews"])
+app.include_router(sentiment.router, prefix="/sentiment", tags=["sentiment"])
+app.include_router(auth.router, prefix="/auth", tags=["authentication"])
+
+# Initialize database tables
+@app.on_event("startup")
+async def startup_event():
+    from database import create_tables
+    create_tables()
 
 if __name__ == "__main__":
     import uvicorn

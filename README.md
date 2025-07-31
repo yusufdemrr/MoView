@@ -2,7 +2,7 @@
 
 A modern movie review website built with React, FastAPI, and TMDB API integration.
 
-## 🎬 Features
+## Features
 
 - **Movie Search & Discovery**: Browse popular movies and search by title
 - **Movie Details**: View comprehensive movie information including cast, synopsis, and ratings
@@ -12,19 +12,21 @@ A modern movie review website built with React, FastAPI, and TMDB API integratio
 - **User Profiles**: Personal "My Ratings" page to track your movie reviews
 - **Responsive Design**: Modern UI built with TailwindCSS
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Frontend
-- **React.js** - Modern UI framework
-- **TailwindCSS** - Utility-first CSS framework
+- **React.js** - Modern UI framework with React Router
+- **TailwindCSS** - Utility-first CSS framework with custom animations
 - **Axios** - HTTP client for API requests
-- **React Router** - Client-side routing
 
 ### Backend
-- **FastAPI** - Modern Python web framework
-- **SQLAlchemy** - SQL toolkit and ORM
+- **FastAPI** - Modern Python web framework with automatic API documentation
+- **SQLAlchemy** - SQL toolkit and ORM with PostgreSQL support
 - **Pydantic** - Data validation using Python type hints
-- **PostgreSQL** - Primary database (via NeonDB)
+
+### Database
+- **PostgreSQL** - Primary database (compatible with NeonDB)
+- **UUID Primary Keys** - For better scalability and security
 
 ### External APIs
 - **TMDB API** - Movie data and images
@@ -32,9 +34,9 @@ A modern movie review website built with React, FastAPI, and TMDB API integratio
 
 ### DevOps
 - **Docker & Docker Compose** - Containerization
-- **PostgreSQL** - Database
+- **Uvicorn** - ASGI server for FastAPI
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Docker and Docker Compose
@@ -60,7 +62,13 @@ A modern movie review website built with React, FastAPI, and TMDB API integratio
    docker-compose up --build
    ```
 
-4. **Access the application**
+4. **Create Demo User (Optional)**
+   ```bash
+   cd backend
+   python demo_user.py
+   ```
+
+5. **Access the application**
    - Frontend: http://localhost:3000
    - Backend API: http://localhost:8000
    - API Documentation: http://localhost:8000/docs
@@ -73,6 +81,11 @@ cd backend
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
+
+# Create demo user and tables
+python demo_user.py
+
+# Start the server
 uvicorn main:app --reload
 ```
 
@@ -83,12 +96,12 @@ npm install
 npm start
 ```
 
-## 📊 Database Schema
+## Database Schema
 
 ### Users Table
 - `id`: UUID - Primary key
-- `username`: TEXT - User's username
-- `email`: TEXT - User's email
+- `username`: TEXT - User's username (unique)
+- `email`: TEXT - User's email (unique)
 - `password`: TEXT - Hashed password
 - `created_at`: TIMESTAMP - Account creation date
 
@@ -96,45 +109,59 @@ npm start
 - `id`: UUID - Primary key
 - `user_id`: FK → users.id
 - `movie_id`: INT - TMDB movie ID
-- `content`: TEXT - Review content
+- `content`: TEXT - Review content (10-1000 characters)
 - `rating`: FLOAT - User rating (1.0 - 5.0)
-- `sentiment`: TEXT - AI sentiment analysis result
+- `sentiment`: TEXT - AI sentiment analysis result (positive/negative/neutral)
 - `created_at`: TIMESTAMP - Review creation date
 
-## 🔌 API Endpoints
+## API Endpoints
 
 ### Movies
-- `GET /movies/popular` - Get popular movies
-- `GET /movies/search?q={query}` - Search movies by title
-- `GET /movies/{id}` - Get movie details by ID
+- `GET /movies/popular` - Get popular movies ✅
+- `GET /movies/search?q={query}` - Search movies by title ✅
+- `GET /movies/{id}` - Get movie details by ID ✅
 
 ### Reviews
-- `POST /reviews/` - Create a new review
-- `GET /reviews/{movie_id}` - Get all reviews for a movie
-- `GET /reviews/user/{user_id}` - Get user's reviews
+- `POST /reviews/` - Create a new review ✅
+- `GET /reviews/{movie_id}` - Get all reviews for a movie ✅
+- `GET /reviews/user/{user_id}` - Get user's reviews ✅
+- `GET /reviews/stats/{movie_id}` - Get movie rating statistics ✅
 
 ### Sentiment Analysis
 - `POST /sentiment` - Analyze review sentiment
 
-### Authentication (Future)
-- `POST /auth/register` - User registration
-- `POST /auth/login` - User login
-- `GET /auth/me` - Get current user info
-
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 project-root/
 ├── backend/
 │   ├── main.py              # FastAPI app entry point
 │   ├── database.py          # Database configuration
+│   ├── demo_user.py         # Demo user creation script
 │   ├── models/              # SQLAlchemy models
+│   │   ├── __init__.py
+│   │   ├── user.py
+│   │   └── review.py
 │   ├── routers/             # API route handlers
+│   │   ├── __init__.py
+│   │   ├── movies.py
+│   │   ├── reviews.py
+│   │   └── sentiment.py
 │   ├── requirements.txt     # Python dependencies
 │   └── Dockerfile           # Backend Docker config
 ├── frontend/
 │   ├── public/              # Static files
 │   ├── src/                 # React source code
+│   │   ├── components/      # React components
+│   │   │   ├── LandingPage.js
+│   │   │   ├── MovieDetail.js
+│   │   │   ├── MoviePosterCarousel.js
+│   │   │   └── MyRatings.js
+│   │   ├── services/        # API service layer
+│   │   │   └── api.js
+│   │   ├── App.js           # Main app component with routing
+│   │   ├── index.css        # Global styles and animations
+│   │   └── index.js         # App entry point
 │   ├── package.json         # Node.js dependencies
 │   └── Dockerfile           # Frontend Docker config
 ├── docker-compose.yml       # Multi-container Docker app
@@ -142,15 +169,16 @@ project-root/
 └── README.md               # Project documentation
 ```
 
-## 🔧 Development
+## Development
 
 ### Adding New Features
 1. Create feature branch
 2. Implement backend endpoints in `/backend/routers/`
 3. Create database models in `/backend/models/`
 4. Build React components in `/frontend/src/components/`
-5. Test thoroughly
-6. Submit pull request
+5. Update API service layer in `/frontend/src/services/`
+6. Test thoroughly
+7. Submit pull request
 
 ### Running Tests
 ```bash
@@ -163,7 +191,7 @@ cd frontend
 npm test
 ```
 
-## 🌐 Deployment
+## Deployment
 
 The application is designed to be deployed on:
 - **Railway.app** - Full stack deployment
@@ -171,7 +199,7 @@ The application is designed to be deployed on:
 - **Heroku** - Alternative deployment
 - **NeonDB** - PostgreSQL database hosting
 
-## 📝 Environment Variables
+## Environment Variables
 
 | Variable | Description | Required |
 |----------|-------------|----------|
@@ -181,7 +209,7 @@ The application is designed to be deployed on:
 | `SECRET_KEY` | JWT signing secret | Yes |
 | `REACT_APP_API_URL` | Backend API URL for frontend | Yes |
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
@@ -189,11 +217,11 @@ The application is designed to be deployed on:
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [The Movie Database (TMDB)](https://www.themoviedb.org/) for providing movie data
 - [Groq](https://groq.com/) for AI-powered sentiment analysis

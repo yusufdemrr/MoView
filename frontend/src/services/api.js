@@ -14,4 +14,29 @@ export const moviesApi = {
   getById: (id) => api.get(`/movies/${id}`),
 };
 
+// Reviews API
+export const reviewsApi = {
+  create: (reviewData) => api.post('/reviews/', reviewData),
+  getByMovieId: (movieId) => api.get(`/reviews/${movieId}`),
+  getByUserId: (userId) => api.get(`/reviews/user/${userId}`),
+  getMovieStats: (movieId) => api.get(`/reviews/stats/${movieId}`),
+};
+
+// Sentiment API
+export const sentimentApi = {
+  analyze: (text) => api.post('/sentiment/analyze', { text }),
+};
+
+// Authentication API
+export const authApi = {
+  register: (userData) => api.post('/auth/register', userData),
+  login: (credentials) => api.post('/auth/login', credentials),
+  getMe: (token) => api.get('/auth/me', {
+    headers: { Authorization: `Bearer ${token}` }
+  }),
+  verifyToken: (token) => api.post('/auth/verify-token', {}, {
+    headers: { Authorization: `Bearer ${token}` }
+  }),
+};
+
 export default api; 
