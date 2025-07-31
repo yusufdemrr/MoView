@@ -117,15 +117,15 @@ npm start
 ## API Endpoints
 
 ### Movies
-- `GET /movies/popular` - Get popular movies ✅
-- `GET /movies/search?q={query}` - Search movies by title ✅
-- `GET /movies/{id}` - Get movie details by ID ✅
+- `GET /movies/popular` - Get popular movies 
+- `GET /movies/search?q={query}` - Search movies by title 
+- `GET /movies/{id}` - Get movie details by ID 
 
 ### Reviews
-- `POST /reviews/` - Create a new review ✅
-- `GET /reviews/{movie_id}` - Get all reviews for a movie ✅
-- `GET /reviews/user/{user_id}` - Get user's reviews ✅
-- `GET /reviews/stats/{movie_id}` - Get movie rating statistics ✅
+- `POST /reviews/` - Create a new review 
+- `GET /reviews/{movie_id}` - Get all reviews for a movie 
+- `GET /reviews/user/{user_id}` - Get user's reviews 
+- `GET /reviews/stats/{movie_id}` - Get movie rating statistics 
 
 ### Sentiment Analysis
 - `POST /sentiment` - Analyze review sentiment
