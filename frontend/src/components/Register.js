@@ -49,7 +49,7 @@ const Register = () => {
     const result = await register(formData.username, formData.email, formData.password);
     
     if (result.success) {
-      navigate('/'); // Redirect to home page
+      navigate('/dashboard'); // Redirect to dashboard after registration
     } else {
       setError(result.error);
     }

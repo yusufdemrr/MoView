@@ -30,7 +30,7 @@ const Login = () => {
     const result = await login(formData.email, formData.password);
     
     if (result.success) {
-      navigate('/'); // Redirect to home page
+      navigate('/dashboard'); // Redirect to dashboard after login
     } else {
       setError(result.error);
     }

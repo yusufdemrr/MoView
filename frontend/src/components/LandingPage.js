@@ -9,8 +9,15 @@ const LandingPage = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showAbout, setShowAbout] = useState(false);
 
   useEffect(() => {
+    // Redirect authenticated users to dashboard
+    if (isAuthenticated) {
+      navigate('/dashboard');
+      return;
+    }
+
     const fetchPopularMovies = async () => {
       try {
         const response = await moviesApi.getPopular();
@@ -23,7 +30,7 @@ const LandingPage = () => {
     };
 
     fetchPopularMovies();
-  }, []);
+  }, [isAuthenticated, navigate]);
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -72,76 +79,73 @@ const LandingPage = () => {
               Discover, rate and review your favorite movies. Join thousands of movie enthusiasts in the ultimate cinematic experience.
             </p>
 
-            {/* CTA Buttons */}
+            {/* CTA Buttons - Only show for unauthenticated users */}
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              {isAuthenticated ? (
-                <>
-                  <button 
-                    onClick={() => navigate('/my-ratings')}
-                    className="group relative px-12 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white font-semibold text-lg shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 hover:from-purple-500 hover:to-pink-500"
-                  >
-                    <span className="relative z-10">My Ratings</span>
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 blur opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
-                  </button>
-                  
-                  <button 
-                    onClick={() => {
-                      // Scroll to movie features or show popular movies
-                      const featuresSection = document.querySelector('.animate-fade-in-delayed');
-                      if (featuresSection) {
-                        featuresSection.scrollIntoView({ behavior: 'smooth' });
-                      }
-                    }}
-                    className="px-12 py-4 border-2 border-purple-500/50 rounded-full text-purple-300 font-semibold text-lg hover:bg-purple-500/10 hover:border-purple-400 transition-all duration-300 backdrop-blur-sm"
-                  >
-                    Explore Movies
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button 
-                    onClick={() => navigate('/register')}
-                    className="group relative px-12 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white font-semibold text-lg shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 hover:from-purple-500 hover:to-pink-500"
-                  >
-                    <span className="relative z-10">Get Started</span>
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 blur opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
-                  </button>
-                  
-                  <button 
-                    onClick={() => {
-                      // Scroll to movie features or show popular movies
-                      const featuresSection = document.querySelector('.animate-fade-in-delayed');
-                      if (featuresSection) {
-                        featuresSection.scrollIntoView({ behavior: 'smooth' });
-                      }
-                    }}
-                    className="px-12 py-4 border-2 border-purple-500/50 rounded-full text-purple-300 font-semibold text-lg hover:bg-purple-500/10 hover:border-purple-400 transition-all duration-300 backdrop-blur-sm"
-                  >
-                    Explore Movies
-                  </button>
-                </>
-              )}
+              <button 
+                onClick={() => navigate('/register')}
+                className="group relative px-12 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white font-semibold text-lg shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 hover:from-purple-500 hover:to-pink-500"
+              >
+                <span className="relative z-10">Let's Start</span>
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 blur opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
+              </button>
+              
+              <button 
+                onClick={() => navigate('/register')}
+                className="px-12 py-4 border-2 border-purple-500/50 rounded-full text-purple-300 font-semibold text-lg hover:bg-purple-500/10 hover:border-purple-400 transition-all duration-300 backdrop-blur-sm"
+              >
+                Sign Up
+              </button>
+
+              <button 
+                onClick={() => setShowAbout(!showAbout)}
+                className="px-12 py-4 border-2 border-white/20 rounded-full text-white/70 font-semibold text-lg hover:bg-white/5 hover:border-white/30 hover:text-white transition-all duration-300 backdrop-blur-sm"
+              >
+                Learn More
+              </button>
             </div>
 
             {/* Sign In Link */}
             <div className="mt-8">
               <p className="text-gray-400">
                 Already have an account?{' '}
-                <button className="text-purple-400 hover:text-purple-300 font-medium underline underline-offset-4 decoration-purple-400/50 hover:decoration-purple-300 transition-colors duration-200">
+                <button 
+                  onClick={() => navigate('/login')}
+                  className="text-purple-400 hover:text-purple-300 font-medium underline underline-offset-4 decoration-purple-400/50 hover:decoration-purple-300 transition-colors duration-200"
+                >
                   Sign In
                 </button>
               </p>
-              
-              {/* Temporary Debug Link */}
-              {/* <div className="mt-4">
-                <button 
-                  onClick={() => navigate('/test')}
-                  className="text-yellow-400 hover:text-yellow-300 font-medium underline underline-offset-4 decoration-yellow-400/50 hover:decoration-yellow-300 transition-colors duration-200 text-sm"
-                >
-                  🔧 Debug Test Page (Temporary)
-                </button>
-              </div> */}
             </div>
+
+            {/* About Section - Expandable */}
+            {showAbout && (
+              <div className="mt-8 p-8 backdrop-blur-md bg-white/5 rounded-2xl border border-white/10 animate-fade-in">
+                <h3 className="text-2xl font-bold text-white mb-4">About MoView</h3>
+                <div className="text-gray-300 space-y-4 text-left max-w-3xl">
+                  <p>
+                    <strong className="text-purple-400">Discover Amazing Movies:</strong> Browse through thousands of popular and trending movies from around the world using our integration with The Movie Database (TMDb).
+                  </p>
+                  <p>
+                    <strong className="text-purple-400">Rate & Review:</strong> Share your thoughts on movies you've watched. Rate films from 1 to 5 stars and write detailed reviews to help other movie enthusiasts.
+                  </p>
+                  <p>
+                    <strong className="text-purple-400">AI-Powered Insights:</strong> Our advanced sentiment analysis automatically categorizes reviews as positive, negative, or neutral, giving you quick insights into community opinions.
+                  </p>
+                  <p>
+                    <strong className="text-purple-400">Personal Dashboard:</strong> Keep track of all your ratings and reviews in your personalized "My Ratings" section.
+                  </p>
+                  <p>
+                    <strong className="text-purple-400">Modern Experience:</strong> Enjoy a sleek, responsive design that works beautifully on all your devices.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowAbout(false)}
+                  className="mt-6 px-6 py-2 bg-purple-600/20 border border-purple-500/50 text-purple-300 rounded-lg hover:bg-purple-500/20 hover:border-purple-400 transition-all duration-300"
+                >
+                  Got it!
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Features Preview */}
