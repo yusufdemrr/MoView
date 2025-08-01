@@ -1,8 +1,8 @@
-# 🗄️ MoView Database Administration Guide
+# MoView Database Administration Guide
 
-## 🚀 Available Database Management Tools
+## Available Database Management Tools
 
-You now have **two excellent web-based database administration tools** running:
+You have **two excellent web-based database administration tools** running:
 
 ### 1. **pgAdmin** (Full-Featured) - Port 5050
 - **URL**: http://localhost:5050
@@ -16,7 +16,7 @@ You now have **two excellent web-based database administration tools** running:
 
 ---
 
-## 🔧 Getting Started
+## Getting Started
 
 ### **Step 1: Access pgAdmin (Recommended)**
 
@@ -50,9 +50,9 @@ You now have **two excellent web-based database administration tools** running:
 
 ---
 
-## 🎯 What You Can Do
+## What You Can Do
 
-### **📊 Data Visualization & Exploration**
+### Data Visualization & Exploration
 
 **In pgAdmin:**
 - **Query Tool**: Advanced SQL editor with syntax highlighting
@@ -66,18 +66,18 @@ You now have **two excellent web-based database administration tools** running:
 - **SQL Command**: Quick query execution
 - **Database Structure**: Visual schema overview
 
-### **🛠️ Data Manipulation**
+### Data Manipulation
 
 **Both tools allow you to:**
-- ✅ **Browse Tables**: Click through your users and reviews
-- ✅ **Run Queries**: Execute complex SQL with visual results
-- ✅ **Edit Data**: Add, update, delete records with forms
-- ✅ **Export Data**: Download tables as CSV, SQL, JSON
-- ✅ **Import Data**: Upload data from files
-- ✅ **Create Tables**: Design new database structures
-- ✅ **Manage Users**: Database user administration
+- **Browse Tables**: Click through your users and reviews
+- **Run Queries**: Execute complex SQL with visual results
+- **Edit Data**: Add, update, delete records with forms
+- **Export Data**: Download tables as CSV, SQL, JSON
+- **Import Data**: Upload data from files
+- **Create Tables**: Design new database structures
+- **Manage Users**: Database user administration
 
-### **📈 Advanced Features (pgAdmin)**
+### Advanced Features (pgAdmin)
 
 - **Query Planner**: Optimize slow queries
 - **Backup/Restore**: Full database backup management
@@ -88,7 +88,7 @@ You now have **two excellent web-based database administration tools** running:
 
 ---
 
-## 🔍 Common Tasks
+## Common Tasks
 
 ### **View Your MoView Data**
 
@@ -134,40 +134,40 @@ VALUES (gen_random_uuid(), 'webuser', 'web@example.com', '$2b$12$dummy', NOW());
 
 ---
 
-## 🎨 Visual Features
+## Visual Features
 
-### **pgAdmin Dashboard**
-- 📊 **Database Size Charts**
-- 📈 **Query Performance Graphs** 
-- 🔍 **Real-time Activity Monitoring**
-- 📋 **Table Relationship Diagrams**
+### pgAdmin Dashboard
+- **Database Size Charts**
+- **Query Performance Graphs** 
+- **Real-time Activity Monitoring**
+- **Table Relationship Diagrams**
 
-### **Adminer Interface**
-- 🎯 **Clean, Minimal Design**
-- ⚡ **Fast Table Browsing**
-- 🔧 **One-Click Operations**
-- 📱 **Mobile-Friendly**
+### Adminer Interface
+- **Clean, Minimal Design**
+- **Fast Table Browsing**
+- **One-Click Operations**
+- **Mobile-Friendly**
 
 ---
 
-## 🚨 Important Notes
+## Important Notes
 
-### **Security**
+### Security
 - These tools are for **development only**
 - Don't expose them in production without proper authentication
 - The default passwords are simple for development ease
 
-### **Performance**
+### Performance
 - **pgAdmin**: More resource-intensive, feature-rich
 - **Adminer**: Lightweight, faster for simple tasks
 
-### **Persistence**
+### Persistence
 - pgAdmin settings are saved in Docker volume `pgadmin_data`
 - Your database connections will persist between restarts
 
 ---
 
-## 🎯 Quick Access Links
+## Quick Access Links
 
 | Tool | URL | Purpose |
 |------|-----|---------|
@@ -178,9 +178,9 @@ VALUES (gen_random_uuid(), 'webuser', 'web@example.com', '$2b$12$dummy', NOW());
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
-### **Can't Connect to Database**
+### Can't Connect to Database
 ```bash
 # Check if database is running
 docker-compose ps db
@@ -189,15 +189,15 @@ docker-compose ps db
 docker-compose logs db
 ```
 
-### **pgAdmin Login Issues**
+### pgAdmin Login Issues
 - Use exact credentials: `admin@moview.com` / `admin123`
 - Clear browser cache if needed
 
-### **Adminer Connection Failed**
+### Adminer Connection Failed
 - Server should be `db` (not `localhost`)
 - Use `postgres` / `postgres` credentials
 
-### **Reset Everything**
+### Reset Everything
 ```bash
 # Stop and remove admin tools
 docker-compose down pgadmin adminer
@@ -207,5 +207,3 @@ docker-compose up -d pgadmin adminer
 ```
 
 ---
-
-**🎉 You now have professional database management tools! Enjoy exploring your MoView data with beautiful visualizations and powerful features!** 🚀 
