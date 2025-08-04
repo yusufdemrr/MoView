@@ -88,13 +88,6 @@ const LandingPage = () => {
                 <span className="relative z-10">Let's Start</span>
                 <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 blur opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
               </button>
-              
-              <button 
-                onClick={() => navigate('/register')}
-                className="px-12 py-4 border-2 border-purple-500/50 rounded-full text-purple-300 font-semibold text-lg hover:bg-purple-500/10 hover:border-purple-400 transition-all duration-300 backdrop-blur-sm"
-              >
-                Sign Up
-              </button>
 
               <button 
                 onClick={() => setShowAbout(!showAbout)}
@@ -151,19 +144,19 @@ const LandingPage = () => {
           {/* Features Preview */}
           <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 animate-fade-in-delayed">
             <div className="backdrop-blur-md bg-white/5 rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300 group">
-              <div className="text-purple-400 text-3xl mb-4 group-hover:scale-110 transition-transform duration-300">🎬</div>
+              {/* <div className="text-purple-400 text-3xl mb-4 group-hover:scale-110 transition-transform duration-300"></div> */}
               <h3 className="text-white font-semibold text-lg mb-2">Discover Movies</h3>
               <p className="text-gray-400 text-sm">Explore trending and popular movies from around the world</p>
             </div>
             
             <div className="backdrop-blur-md bg-white/5 rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300 group">
-              <div className="text-purple-400 text-3xl mb-4 group-hover:scale-110 transition-transform duration-300">⭐</div>
+              {/* <div className="text-purple-400 text-3xl mb-4 group-hover:scale-110 transition-transform duration-300"></div> */}
               <h3 className="text-white font-semibold text-lg mb-2">Rate & Review</h3>
               <p className="text-gray-400 text-sm">Share your thoughts and rate movies with our community</p>
             </div>
             
             <div className="backdrop-blur-md bg-white/5 rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300 group">
-              <div className="text-purple-400 text-3xl mb-4 group-hover:scale-110 transition-transform duration-300">🤖</div>
+              {/* <div className="text-purple-400 text-3xl mb-4 group-hover:scale-110 transition-transform duration-300"></div> */}
               <h3 className="text-white font-semibold text-lg mb-2">AI Insights</h3>
               <p className="text-gray-400 text-sm">Get intelligent sentiment analysis on all reviews</p>
             </div>

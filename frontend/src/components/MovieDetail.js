@@ -193,7 +193,7 @@ const MovieDetail = () => {
                   <span className="text-gray-400 mr-2">Rating:</span>
                   <div className="flex items-center">
                     {renderStars(movie.vote_average / 2)}
-                    <span className="text-white ml-2">({movie.vote_average}/10)</span>
+                    <span className="text-white ml-2">({movie.vote_average.toFixed(1)}/10)</span>
                   </div>
                 </div>
                 <div className="flex items-center">
