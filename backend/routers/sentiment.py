@@ -5,12 +5,20 @@ from groq import Groq
 
 router = APIRouter()
 
-# Initialize Groq client
+# Initialize Groq client with error handling
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+groq_client = None
+
 if GROQ_API_KEY:
-    groq_client = Groq(api_key=GROQ_API_KEY)
+    try:
+        groq_client = Groq(api_key=GROQ_API_KEY)
+        print("Groq client initialized successfully")
+    except Exception as e:
+        print(f"Failed to initialize Groq client: {e}")
+        print("Sentiment analysis will use fallback method")
+        groq_client = None
 else:
-    groq_client = None
+    print("No GROQ_API_KEY provided, using fallback sentiment analysis")
 
 class SentimentRequest(BaseModel):
     text: str = Field(..., min_length=1, max_length=1000, description="Text to analyze")
@@ -22,9 +30,15 @@ class SentimentResponse(BaseModel):
 
 @router.post("/analyze", response_model=SentimentResponse)
 async def analyze_sentiment(request: SentimentRequest):
-    """Analyze sentiment of review text using Groq API"""
+    """Analyze sentiment of review text using Groq API or fallback method"""
     if not groq_client:
-        raise HTTPException(status_code=500, detail="Groq API not configured")
+        # Use fallback sentiment analysis
+        sentiment = simple_sentiment_analysis(request.text)
+        return SentimentResponse(
+            text=request.text,
+            sentiment=sentiment,
+            confidence=0.7  # Default confidence for fallback method
+        )
     
     try:
         # Create a prompt for sentiment analysis
