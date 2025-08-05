@@ -1,43 +1,19 @@
 # MoView Database Administration Guide
 
-## Available Database Management Tools
+## Database Management Tool
 
-You have **two excellent web-based database administration tools** running:
+You have **Adminer** - a lightweight, web-based database administration tool running:
 
-### 1. **pgAdmin** (Full-Featured) - Port 5050
-- **URL**: http://localhost:5050
-- **Email**: admin@moview.com  
-- **Password**: admin123
-- **Best for**: Complex database operations, advanced queries, database design
-
-### 2. **Adminer** (Lightweight) - Port 8080
+### **Adminer** - Port 8080
 - **URL**: http://localhost:8080
-- **Best for**: Quick data viewing, simple queries, lightweight operations
+- **Best for**: Database viewing, queries, data management, lightweight operations
+- **Advantage**: Simple setup, no additional configuration needed
 
 ---
 
 ## Getting Started
 
-### **Step 1: Access pgAdmin (Recommended)**
-
-1. **Open**: http://localhost:5050
-2. **Login** with:
-   - Email: `admin@moview.com`
-   - Password: `admin123`
-
-3. **Add Server Connection**:
-   - Right-click "Servers" → "Create" → "Server"
-   - **General Tab**:
-     - Name: `MoView Database`
-   - **Connection Tab**:
-     - Host: `db` (Docker service name)
-     - Port: `5432`
-     - Database: `moview_db`
-     - Username: `postgres`
-     - Password: `postgres`
-   - Click **Save**
-
-### **Step 2: Alternative - Access Adminer**
+### **Access Adminer**
 
 1. **Open**: http://localhost:8080
 2. **Fill the form**:

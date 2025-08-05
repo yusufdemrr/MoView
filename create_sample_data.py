@@ -7,7 +7,10 @@ Run this from the project root directory
 import requests
 import json
 
-API_BASE = "https://moview-backend.onrender.com"
+import os
+
+# You can override this via environment variable for different deployments
+API_BASE = os.getenv("MOVIEW_API_URL", "https://moview-backend.onrender.com")
 
 # Sample users to create
 sample_users = [
@@ -30,13 +33,13 @@ def create_user(user_data):
     try:
         response = requests.post(f"{API_BASE}/auth/register", json=user_data)
         if response.status_code == 200:
-            print(f"✅ Created user: {user_data['username']}")
+            print(f"Created user: {user_data['username']}")
             return response.json()
         else:
-            print(f"❌ Failed to create user {user_data['username']}: {response.json()}")
+            print(f"Failed to create user {user_data['username']}: {response.json()}")
             return None
     except Exception as e:
-        print(f"❌ Error creating user {user_data['username']}: {e}")
+        print(f"Error creating user {user_data['username']}: {e}")
         return None
 
 def login_user(email, password):
@@ -46,10 +49,10 @@ def login_user(email, password):
         if response.status_code == 200:
             return response.json()["access_token"]
         else:
-            print(f"❌ Failed to login {email}: {response.json()}")
+            print(f"Failed to login {email}: {response.json()}")
             return None
     except Exception as e:
-        print(f"❌ Error logging in {email}: {e}")
+        print(f"Error logging in {email}: {e}")
         return None
 
 def create_review(token, user_id, review_data):
@@ -59,29 +62,30 @@ def create_review(token, user_id, review_data):
         review_payload = {**review_data, "user_id": user_id}
         response = requests.post(f"{API_BASE}/reviews/", json=review_payload, headers=headers)
         if response.status_code == 200:
-            print(f"✅ Created review for movie {review_data['movie_id']}")
+            print(f"Created review for movie {review_data['movie_id']}")
             return response.json()
         else:
-            print(f"❌ Failed to create review: {response.json()}")
+            print(f"Failed to create review: {response.json()}")
             return None
     except Exception as e:
-        print(f"❌ Error creating review: {e}")
+        print(f"Error creating review: {e}")
         return None
 
 def main():
-    print("🚀 Creating sample users and reviews for MoView...")
+    print("Creating sample users and reviews for MoView...")
+    print(f"Target API: {API_BASE}")
     print("-" * 50)
     
     created_users = []
     
     # Create users
-    print("👥 Creating users...")
+    print("Creating users...")
     for user_data in sample_users:
         user = create_user(user_data)
         if user:
             created_users.append((user, user_data))
     
-    print(f"\n📝 Created {len(created_users)} users. Now creating reviews...")
+    print(f"\nCreated {len(created_users)} users. Now creating reviews...")
     
     # Create reviews for the first few users
     for i, (user, user_data) in enumerate(created_users[:3]):  # Only first 3 users
@@ -92,12 +96,12 @@ def main():
             for review_data in reviews_to_create:
                 create_review(token, user["id"], review_data)
     
-    print("\n🎉 Sample data creation complete!")
-    print(f"\n📊 Sample data created on production database via: {API_BASE}")
-    print("\n🌐 You can now test the data at:")
+    print("\nSample data creation complete!")
+    print(f"\nSample data created on production database via: {API_BASE}")
+    print("\nYou can now test the data at:")
     print("Frontend: https://moview-frontend-five.vercel.app/")
     print("Backend API: https://moview-backend.onrender.com/")
-    print("\n💡 Try logging in with these test accounts:")
+    print("\nTry logging in with these test accounts:")
     for user in sample_users:
         print(f"   Email: {user['email']} | Password: {user['password']}")
 

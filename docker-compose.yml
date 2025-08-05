@@ -43,22 +43,7 @@ services:
     environment:
       - REACT_APP_API_URL=http://localhost:8000
 
-  # pgAdmin - Full-featured PostgreSQL administration tool
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@moview.com
-      - PGADMIN_DEFAULT_PASSWORD=admin123
-      - PGADMIN_CONFIG_SERVER_MODE=False
-      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
-    ports:
-      - "5050:80"
-    depends_on:
-      - db
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-
-  # Adminer - Lightweight database management tool (alternative to pgAdmin)
+  # Adminer - Lightweight database management tool
   adminer:
     image: adminer:latest
     ports:
@@ -69,5 +54,4 @@ services:
       - ADMINER_DEFAULT_SERVER=db
 
 volumes:
-  postgres_data:
-  pgadmin_data: 
+  postgres_data: 

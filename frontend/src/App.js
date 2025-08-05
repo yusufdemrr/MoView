@@ -6,7 +6,7 @@ import LandingPage from './components/LandingPage';
 import MainDashboard from './components/MainDashboard';
 import MovieDetail from './components/MovieDetail';
 import MyRatings from './components/MyRatings';
-import TestPage from './components/TestPage';
+
 import Login from './components/Login';
 import Register from './components/Register';
 
@@ -22,7 +22,7 @@ function App() {
             <Route path="/my-ratings" element={<MyRatings />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/test" element={<TestPage />} />
+
           </Routes>
         </div>
       </Router>
