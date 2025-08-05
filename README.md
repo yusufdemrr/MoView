@@ -2,6 +2,14 @@
 
 A modern movie review website built with React, FastAPI, and TMDB API integration.
 
+## Live Demo
+
+- **Frontend**: [https://moview-frontend-five.vercel.app/](https://moview-frontend-five.vercel.app/)
+- **Backend API**: [https://moview-backend.onrender.com/](https://moview-backend.onrender.com/)
+- **API Documentation**: [https://moview-backend.onrender.com/docs](https://moview-backend.onrender.com/docs)
+
+
+
 ## Features
 
 - **Movie Search & Discovery**: Browse popular movies and search by title
@@ -32,9 +40,12 @@ A modern movie review website built with React, FastAPI, and TMDB API integratio
 - **TMDB API** - Movie data and images
 - **Groq API** - AI-powered sentiment analysis
 
-### DevOps
-- **Docker & Docker Compose** - Containerization
-- **Uvicorn** - ASGI server for FastAPI
+### Deployment & DevOps
+- **Render** - Backend hosting (FastAPI)
+- **Vercel** - Frontend hosting (React)
+- **NeonDB** - PostgreSQL database hosting
+- **Docker & Docker Compose** - Local development containerization
+- **GitHub Actions** - CI/CD pipeline
 
 ## Quick Start
 
@@ -47,14 +58,17 @@ A modern movie review website built with React, FastAPI, and TMDB API integratio
 
 1. **Clone the repository**
    ```bash
-   git clone <your-repo-url>
-   cd moview
+   git clone https://github.com/yusufdemrr/MoView.git
+   cd MoView
    ```
 
 2. **Environment Configuration**
    ```bash
-   cp .env.example .env
-   # Edit .env with your API keys
+   cp env.example .env
+   # Edit .env with your API keys:
+   # TMDB_API_KEY=your_tmdb_api_key_here
+   # GROQ_API_KEY=your_groq_api_key_here
+   # SECRET_KEY=your-secret-key-here
    ```
 
 3. **Start with Docker Compose**
@@ -62,16 +76,21 @@ A modern movie review website built with React, FastAPI, and TMDB API integratio
    docker-compose up --build
    ```
 
-4. **Create Demo User (Optional)**
+4. **Populate Sample Data (Optional)**
    ```bash
-   cd backend
-   python demo_user.py
+   # Wait for services to start (about 30 seconds), then:
+   python3 -m venv sample_env
+   source sample_env/bin/activate
+   pip install requests
+   python3 create_sample_data.py
+   deactivate && rm -rf sample_env
    ```
 
 5. **Access the application**
    - Frontend: http://localhost:3000
    - Backend API: http://localhost:8000
    - API Documentation: http://localhost:8000/docs
+   - Database Admin: http://localhost:8080 (Adminer)
 
 ### Manual Setup (Development)
 
@@ -82,8 +101,7 @@ python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
-# Create demo user and tables
-python demo_user.py
+# Tables are created automatically on startup
 
 # Start the server
 uvicorn main:app --reload
@@ -127,46 +145,64 @@ npm start
 - `GET /reviews/user/{user_id}` - Get user's reviews 
 - `GET /reviews/stats/{movie_id}` - Get movie rating statistics 
 
+### Authentication
+- `POST /auth/register` - Register new user
+- `POST /auth/login` - User login (returns JWT token)
+- `GET /auth/me` - Get current user info
+- `POST /auth/verify-token` - Verify JWT token
+
 ### Sentiment Analysis
-- `POST /sentiment` - Analyze review sentiment
+- `POST /sentiment/analyze` - Analyze review sentiment with Groq AI
 
 ## Project Structure
 
 ```
-project-root/
-├── backend/
-│   ├── main.py              # FastAPI app entry point
-│   ├── database.py          # Database configuration
-│   ├── demo_user.py         # Demo user creation script
-│   ├── models/              # SQLAlchemy models
+MoView/
+├── backend/                     # FastAPI Backend
+│   ├── main.py                 # FastAPI app entry point
+│   ├── database.py             # Database configuration
+│   ├── models/                 # SQLAlchemy models
 │   │   ├── __init__.py
-│   │   ├── user.py
-│   │   └── review.py
-│   ├── routers/             # API route handlers
+│   │   ├── user.py            # User model
+│   │   └── review.py          # Review model
+│   ├── routers/               # API route handlers
 │   │   ├── __init__.py
-│   │   ├── movies.py
-│   │   ├── reviews.py
-│   │   └── sentiment.py
-│   ├── requirements.txt     # Python dependencies
-│   └── Dockerfile           # Backend Docker config
-├── frontend/
-│   ├── public/              # Static files
-│   ├── src/                 # React source code
-│   │   ├── components/      # React components
-│   │   │   ├── LandingPage.js
-│   │   │   ├── MovieDetail.js
+│   │   ├── auth.py           # Authentication endpoints
+│   │   ├── movies.py         # Movie data endpoints
+│   │   ├── reviews.py        # Review CRUD endpoints
+│   │   └── sentiment.py      # AI sentiment analysis
+│   ├── requirements.txt       # Python dependencies
+│   └── Dockerfile            # Backend Docker config
+├── frontend/                   # React Frontend
+│   ├── public/               # Static files & favicon
+│   ├── src/
+│   │   ├── components/       # React components
+│   │   │   ├── LandingPage.js      # Welcome page
+│   │   │   ├── MainDashboard.js    # Main app dashboard
+│   │   │   ├── MovieDetail.js      # Movie details & reviews
 │   │   │   ├── MoviePosterCarousel.js
-│   │   │   └── MyRatings.js
-│   │   ├── services/        # API service layer
-│   │   │   └── api.js
-│   │   ├── App.js           # Main app component with routing
-│   │   ├── index.css        # Global styles and animations
-│   │   └── index.js         # App entry point
-│   ├── package.json         # Node.js dependencies
-│   └── Dockerfile           # Frontend Docker config
-├── docker-compose.yml       # Multi-container Docker app
-├── .env.example             # Environment variables template
-└── README.md               # Project documentation
+│   │   │   ├── MyRatings.js        # User's reviews page
+│   │   │   ├── Login.js           # Login form
+│   │   │   └── Register.js        # Registration form
+│   │   ├── contexts/         # React Context API
+│   │   │   └── AuthContext.js     # Authentication state
+│   │   ├── services/         # API service layer
+│   │   │   └── api.js            # Axios API client
+│   │   ├── App.js            # Main app with routing
+│   │   └── index.js          # App entry point
+│   ├── package.json          # Node.js dependencies
+│   ├── Dockerfile           # Frontend Docker config
+│   └── vercel.json          # Vercel deployment config
+├── .github/workflows/        # GitHub Actions CI/CD
+├── create_sample_data.py     # Sample data creation script
+├── deploy_check.py          # Deployment readiness checker
+├── docker-compose.yml       # Local development setup
+├── render.yaml             # Render deployment config
+├── DEPLOYMENT_GUIDE.md     # Complete deployment instructions
+├── database_admin_guide.md # Database management guide
+├── useful_queries.md       # Database query reference
+├── env.example            # Environment variables template
+└── README.md             # Project documentation
 ```
 
 ## Development
@@ -180,34 +216,55 @@ project-root/
 6. Test thoroughly
 7. Submit pull request
 
-### Running Tests
+### Database Management
 ```bash
-# Backend tests
-cd backend
-pytest
+# Start local development
+docker-compose up -d
 
-# Frontend tests  
-cd frontend
-npm test
+# Access database admin interface
+open http://localhost:8080  # Adminer
+
+# Run sample data script
+python3 create_sample_data.py
+
+# Check deployment readiness
+python3 deploy_check.py
 ```
 
 ## Deployment
 
-The application is designed to be deployed on:
-- **Railway.app** - Full stack deployment
-- **Render.com** - Backend deployment
-- **Heroku** - Alternative deployment
-- **NeonDB** - PostgreSQL database hosting
+The application is currently deployed using modern cloud services:
+
+### Production Stack
+- **Frontend**: [Vercel](https://vercel.com) - React hosting with auto-deployment
+- **Backend**: [Render](https://render.com) - FastAPI hosting (750 hours/month free)
+- **Database**: [NeonDB](https://neon.tech) - Serverless PostgreSQL
+- **CI/CD**: GitHub Actions for automated deployments
+
+### Quick Deployment
+1. **Follow the comprehensive guide**: See `DEPLOYMENT_GUIDE.md`
+2. **Check readiness**: Run `python3 deploy_check.py`
+3. **Deploy in minutes**: All services have free tiers!
+
+### Cost: **$0/month** for MVP usage 
 
 ## Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `TMDB_API_KEY` | TMDB API access key | Yes |
-| `GROQ_API_KEY` | Groq AI API key | Yes |
-| `DATABASE_URL` | PostgreSQL connection string | Yes |
-| `SECRET_KEY` | JWT signing secret | Yes |
-| `REACT_APP_API_URL` | Backend API URL for frontend | Yes |
+| Variable | Description | Required | Example |
+|----------|-------------|----------|---------|
+| `TMDB_API_KEY` | TMDB API access key | Yes | `eyJhbGciOiJIUzI1NiJ9...` |
+| `GROQ_API_KEY` | Groq AI API key | Yes | `gsk_...` |
+| `DATABASE_URL` | PostgreSQL connection string | Yes | `postgresql://user:pass@host:5432/db` |
+| `SECRET_KEY` | JWT signing secret | Yes | `your-super-secret-key` |
+| `REACT_APP_API_URL` | Backend API URL for frontend | Production | `https://your-backend.onrender.com` |
+
+### Local Development
+- All variables have sensible defaults for local development
+- Only API keys need to be configured in `.env` file
+
+### Production Deployment
+- Set environment variables in your hosting service dashboards
+- See `DEPLOYMENT_GUIDE.md` for step-by-step instructions
 
 ## Contributing
 
@@ -217,14 +274,32 @@ The application is designed to be deployed on:
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+### Development Guidelines
+- Follow the existing code structure
+- Test locally with Docker before submitting PR
+- Update documentation if needed
+- Use meaningful commit messages
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## Sample Data
+
+The application comes with sample users and reviews for testing:
+- **Email**: `john@example.com` | **Password**: `password123`
+- **Email**: `jane@example.com` | **Password**: `password123`
+- **Email**: `critic@movies.com` | **Password**: `password123`
+
+Create your own sample data: `python3 create_sample_data.py`
+
 ## Acknowledgments
 
-- [The Movie Database (TMDB)](https://www.themoviedb.org/) for providing movie data
-- [Groq](https://groq.com/) for AI-powered sentiment analysis
+- [The Movie Database (TMDB)](https://www.themoviedb.org/) for comprehensive movie data
+- [Groq](https://groq.com/) for lightning-fast AI sentiment analysis
 - [FastAPI](https://fastapi.tiangolo.com/) for the excellent Python web framework
-- [React](https://reactjs.org/) for the frontend framework
-- [TailwindCSS](https://tailwindcss.com/) for the styling framework 
+- [React](https://reactjs.org/) for the powerful frontend framework
+- [TailwindCSS](https://tailwindcss.com/) for beautiful utility-first CSS
+- [Render](https://render.com/) for reliable backend hosting
+- [Vercel](https://vercel.com/) for seamless frontend deployment
+- [NeonDB](https://neon.tech/) for serverless PostgreSQL hosting
