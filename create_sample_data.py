@@ -7,7 +7,7 @@ Run this from the project root directory
 import requests
 import json
 
-API_BASE = "http://localhost:8000"
+API_BASE = "https://moview-backend.onrender.com"
 
 # Sample users to create
 sample_users = [
@@ -93,9 +93,13 @@ def main():
                 create_review(token, user["id"], review_data)
     
     print("\n🎉 Sample data creation complete!")
-    print("\n📊 To view the data, run:")
-    print("docker-compose exec db psql -U postgres -d moview_db -c \"SELECT COUNT(*) FROM users;\"")
-    print("docker-compose exec db psql -U postgres -d moview_db -c \"SELECT COUNT(*) FROM reviews;\"")
+    print(f"\n📊 Sample data created on production database via: {API_BASE}")
+    print("\n🌐 You can now test the data at:")
+    print("Frontend: https://moview-frontend-five.vercel.app/")
+    print("Backend API: https://moview-backend.onrender.com/")
+    print("\n💡 Try logging in with these test accounts:")
+    for user in sample_users:
+        print(f"   Email: {user['email']} | Password: {user['password']}")
 
 if __name__ == "__main__":
     main() 
