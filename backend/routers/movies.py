@@ -21,7 +21,8 @@ async def get_popular_movies(page: int = 1) -> Dict[str, Any]:
         params = {
             "api_key": TMDB_API_KEY,
             "page": page,
-            "language": "en-US"
+            "language": "en-US",
+            "include_adult": False
         }
         
         response = requests.get(url, params=params)
@@ -95,6 +96,9 @@ async def get_movie_details(movie_id: int) -> Dict[str, Any]:
         response.raise_for_status()
         
         data = response.json()
+
+        if data.get("adult"):
+            raise HTTPException(status_code=403, detail="Adult content is not allowed")
         
         # Add full image URLs
         if data.get("poster_path"):
