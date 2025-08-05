@@ -15,10 +15,21 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS middleware
+# CORS middleware - Update for production
+allowed_origins = [
+    "http://localhost:3000",  # Local development
+    "http://frontend:80",     # Docker
+    "https://*.vercel.app",   # Vercel deployments
+    "https://*.onrender.com", # Render deployments
+]
+
+# Allow all origins in production for flexibility (you can restrict this later)
+if os.getenv("ENVIRONMENT") == "production":
+    allowed_origins = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://frontend:80"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -49,4 +60,5 @@ async def startup_event():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+    port = int(os.getenv("PORT", 8000))  # Use PORT env var, fallback to 8000
+    uvicorn.run(app, host="0.0.0.0", port=port) 

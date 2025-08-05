@@ -1,3 +1,8 @@
+# Deployment Checker
+deploy_check.py
+
+RENDER_MIGRATION_SUMMARY.md
+
 # Environment Variables (CRITICAL - Contains API Keys)
 .env
 .env.local
