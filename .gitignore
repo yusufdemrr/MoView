@@ -2,7 +2,6 @@
 deploy_check.py
 
 RENDER_MIGRATION_SUMMARY.md
-PROJECT_REQUIREMENTS.md
 
 # Environment Variables (CRITICAL - Contains API Keys)
 .env
