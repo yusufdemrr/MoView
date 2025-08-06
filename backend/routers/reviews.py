@@ -181,18 +181,54 @@ async def get_movie_rating_stats(movie_id: int, db: Session = Depends(get_db)):
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 
+print(f"🔍 GROQ_API_KEY exists: {GROQ_API_KEY is not None}")
+print(f"🔍 GROQ_API_KEY length: {len(GROQ_API_KEY) if GROQ_API_KEY else 0}")
+print(f"🔍 GROQ_API_KEY starts with 'gsk_': {GROQ_API_KEY.startswith('gsk_') if GROQ_API_KEY else False}")
+
 groq_client = None
 if GROQ_API_KEY:
     try:
+        print(f"🔄 Attempting to initialize Groq client...")
         groq_client = Groq(api_key=GROQ_API_KEY)
         print(f"✅ Groq client initialized successfully with key: {GROQ_API_KEY[:10]}...")
+        print(f"✅ Groq client type: {type(groq_client)}")
+        
+        # Test a simple API call to verify the client works
+        try:
+            print("🧪 Testing Groq client with a simple request...")
+            test_response = groq_client.chat.completions.create(
+                messages=[{"role": "user", "content": "Hello"}],
+                model="mixtral-8x7b-32768",
+                max_tokens=10
+            )
+            print("✅ Groq client test successful!")
+        except Exception as test_error:
+            print(f"❌ Groq client test failed: {test_error}")
+            groq_client = None
+            
     except Exception as e:
         print(f"❌ Failed to initialize Groq client: {e}")
+        print(f"❌ Error type: {type(e)}")
+        import traceback
+        print(f"❌ Full traceback: {traceback.format_exc()}")
         print("Recommendation system will use fallback method")
         groq_client = None
 else:
     print("❌ No GROQ_API_KEY provided, using fallback recommendations")
-    print(f"Environment variables available: {list(os.environ.keys())}")
+    print(f"Environment variables with 'GROQ': {[k for k in os.environ.keys() if 'GROQ' in k.upper()]}")
+    print(f"Environment variables with 'API': {[k for k in os.environ.keys() if 'API' in k.upper()]}")
+
+print(f"🎯 Final groq_client status: {groq_client is not None}")
+
+@router.get("/groq-status")
+async def check_groq_status():
+    """Health check endpoint for Groq API integration"""
+    return {
+        "groq_api_key_exists": GROQ_API_KEY is not None,
+        "groq_api_key_length": len(GROQ_API_KEY) if GROQ_API_KEY else 0,
+        "groq_client_initialized": groq_client is not None,
+        "groq_client_type": str(type(groq_client)) if groq_client else "None"
+    }
 
 async def get_movie_metadata_from_tmdb(movie_id: int) -> Optional[dict]:
     """Get detailed movie metadata including genres and keywords from TMDb API"""
