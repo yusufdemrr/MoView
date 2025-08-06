@@ -73,7 +73,7 @@ ENVIRONMENT=production
 
 ---
 
-## ⚡ Step 3: Deploy Frontend to Render
+## Step 3: Deploy Frontend to Render
 
 ### 3.1 Create Frontend Service
 1. In your Render dashboard, click **New** → **Static Site**
@@ -102,7 +102,7 @@ REACT_APP_API_URL=https://your-backend-app-name.onrender.com
 
 ---
 
-## 🔧 Step 4: Final Configuration
+## Step 4: Final Configuration
 
 ### 4.1 Update CORS (if needed)
 If you get CORS errors, update `backend/main.py`:
