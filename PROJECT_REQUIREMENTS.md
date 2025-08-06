@@ -2,7 +2,7 @@
 
 ## 1. Project Objective
 
-The primary objective of this project is to develop a comprehensive web application that enables users to search for films, rate them, and share their reviews. The system integrates film data from the TMDb API, provides AI-powered sentiment analysis, and includes a complete user authentication system. This application serves as a portfolio piece demonstrating full-stack development capabilities with modern cloud deployment.
+The primary objective of this project is to develop a comprehensive web application that enables users to search for films, rate them, and share their reviews. The system integrates film data from the TMDb API, provides local keyword-based sentiment analysis and AI-powered movie recommendations, and includes a complete user authentication system. This application serves as a portfolio piece demonstrating full-stack development capabilities with modern cloud deployment.
 
 ## 2. Technology Stack
 
@@ -31,7 +31,7 @@ The technology stack is designed with a modern, scalable architecture encompassi
 
 ### External API Integrations
 - **TMDb API v3** - Comprehensive movie data and metadata
-- **Groq API** - AI-powered sentiment analysis with fallback support
+- **Groq API** - AI-powered movie recommendations (sentiment analysis now uses local keyword-based approach)
 
 ### Deployment and DevOps
 - **Render.com** - Backend hosting with 750 hours/month free tier
@@ -79,11 +79,12 @@ The technology stack is designed with a modern, scalable architecture encompassi
 - Pagination support for large datasets
 
 ### 3.5 Artificial Intelligence Features
-- Automated sentiment analysis using Groq API
-- Fallback sentiment analysis for offline capability
-- Sentiment classification: positive, negative, neutral
-- Confidence scoring for sentiment predictions
-- Error handling and graceful degradation
+- **Sentiment Analysis**: Local keyword-based analysis with no external dependencies
+- **Movie Recommendations**: AI-powered personalized recommendations using Groq API
+- Sentiment classification: positive, negative, neutral with confidence scoring
+- Enhanced keyword matching with 23+ positive and negative terms
+- Confidence calculation based on keyword density and text length
+- Graceful fallback for recommendation system when API is unavailable
 
 ## 4. API Endpoint Specifications
 
@@ -105,9 +106,12 @@ The technology stack is designed with a modern, scalable architecture encompassi
 - `GET /reviews/stats/{movie_id}` - Calculate movie rating statistics
 
 ### 4.4 Sentiment Analysis Endpoints
-- `POST /sentiment/analyze` - Analyze text sentiment with Groq AI or fallback
+- `POST /sentiment/analyze` - Analyze text sentiment using local keyword-based analysis
 
-### 4.5 Health and Monitoring
+### 4.5 Movie Recommendation Endpoints
+- `GET /reviews/recommendations/{user_id}` - Generate AI-powered personalized movie recommendations
+
+### 4.6 Health and Monitoring
 - `GET /health` - Application health check endpoint
 - `GET /` - API welcome message and status
 
@@ -223,7 +227,7 @@ MoView/
 │   │   ├── auth.py           # Authentication endpoints
 │   │   ├── movies.py         # Movie data endpoints
 │   │   ├── reviews.py        # Review CRUD operations
-│   │   └── sentiment.py      # AI sentiment analysis
+│   │   └── sentiment.py      # Local keyword-based sentiment analysis
 │   ├── requirements.txt       # Python dependencies
 │   └── Dockerfile            # Backend containerization
 ├── frontend/                   # React Frontend
@@ -263,7 +267,8 @@ MoView/
 - Complete user authentication system with JWT
 - Movie search and discovery functionality
 - Review and rating system with persistence
-- AI-powered sentiment analysis with fallback
+- Local keyword-based sentiment analysis (fast, reliable, no external dependencies)
+- AI-powered movie recommendations with intelligent fallback
 - Responsive user interface with modern design
 - Production deployment on cloud infrastructure
 - Database administration and management tools

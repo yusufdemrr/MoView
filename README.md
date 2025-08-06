@@ -16,7 +16,7 @@ A modern movie review website built with React, FastAPI, and TMDB API integratio
 - **Movie Details**: View comprehensive movie information including cast, synopsis, and ratings
 - **User Reviews**: Submit and read movie reviews from other users
 - **Rating System**: Rate movies and view average ratings
-- **Sentiment Analysis**: AI-powered sentiment analysis of reviews using Groq API
+- **Sentiment Analysis**: Fast, local keyword-based sentiment analysis of reviews
 - **User Profiles**: Personal "My Ratings" page to track your movie reviews
 - **Responsive Design**: Modern UI built with TailwindCSS
 
@@ -38,7 +38,7 @@ A modern movie review website built with React, FastAPI, and TMDB API integratio
 
 ### External APIs
 - **TMDB API** - Movie data and images
-- **Groq API** - AI-powered sentiment analysis
+- **Groq API** - AI-powered movie recommendations
 
 ### Deployment & DevOps
 - **Render** - Backend hosting (FastAPI)
@@ -52,7 +52,7 @@ A modern movie review website built with React, FastAPI, and TMDB API integratio
 ### Prerequisites
 - Docker and Docker Compose
 - TMDB API key ([Get it here](https://www.themoviedb.org/settings/api))
-- Groq API key ([Get it here](https://groq.com/))
+- Groq API key (optional - only for movie recommendations) ([Get it here](https://groq.com/)
 
 ### Setup
 
@@ -129,7 +129,7 @@ npm start
 - `movie_id`: INT - TMDB movie ID
 - `content`: TEXT - Review content (10-1000 characters)
 - `rating`: FLOAT - User rating (1.0 - 5.0)
-- `sentiment`: TEXT - AI sentiment analysis result (positive/negative/neutral)
+- `sentiment`: TEXT - Keyword-based sentiment analysis result (positive/negative/neutral)
 - `created_at`: TIMESTAMP - Review creation date
 
 ## API Endpoints
@@ -152,7 +152,10 @@ npm start
 - `POST /auth/verify-token` - Verify JWT token
 
 ### Sentiment Analysis
-- `POST /sentiment/analyze` - Analyze review sentiment with Groq AI
+- `POST /sentiment/analyze` - Analyze review sentiment using local keyword-based analysis
+
+### Movie Recommendations  
+- `GET /reviews/recommendations/{user_id}` - Get AI-powered personalized movie recommendations
 
 ## Project Structure
 
@@ -170,7 +173,7 @@ MoView/
 │   │   ├── auth.py           # Authentication endpoints
 │   │   ├── movies.py         # Movie data endpoints
 │   │   ├── reviews.py        # Review CRUD endpoints
-│   │   └── sentiment.py      # AI sentiment analysis
+│   │   └── sentiment.py      # Local keyword-based sentiment analysis
 │   ├── requirements.txt       # Python dependencies
 │   └── Dockerfile            # Backend Docker config
 ├── frontend/                   # React Frontend
@@ -253,14 +256,15 @@ The application is currently deployed using modern cloud services:
 | Variable | Description | Required | Example |
 |----------|-------------|----------|---------|
 | `TMDB_API_KEY` | TMDB API access key | Yes | `eyJhbGciOiJIUzI1NiJ9...` |
-| `GROQ_API_KEY` | Groq AI API key | Yes | `gsk_...` |
+| `GROQ_API_KEY` | Groq AI API key (optional) | No* | `gsk_...` |
 | `DATABASE_URL` | PostgreSQL connection string | Yes | `postgresql://user:pass@host:5432/db` |
 | `SECRET_KEY` | JWT signing secret | Yes | `your-super-secret-key` |
 | `REACT_APP_API_URL` | Backend API URL for frontend | Production | `https://your-backend.onrender.com` |
 
 ### Local Development
 - All variables have sensible defaults for local development
-- Only API keys need to be configured in `.env` file
+- TMDB API key is required; Groq API key is optional (only needed for recommendations)
+- *Groq API key: Required only for AI-powered movie recommendations;
 
 ### Production Deployment
 - Set environment variables in your hosting service dashboards
@@ -296,7 +300,7 @@ Create your own sample data: `python3 create_sample_data.py`
 ## Acknowledgments
 
 - [The Movie Database (TMDB)](https://www.themoviedb.org/) for comprehensive movie data
-- [Groq](https://groq.com/) for lightning-fast AI sentiment analysis
+- [Groq](https://groq.com/) for AI-powered movie recommendations
 - [FastAPI](https://fastapi.tiangolo.com/) for the excellent Python web framework
 - [React](https://reactjs.org/) for the powerful frontend framework
 - [TailwindCSS](https://tailwindcss.com/) for beautiful utility-first CSS
