@@ -6,7 +6,7 @@ Deploy your MoView application for FREE using modern cloud services!
 
 - **Database**: NeonDB (PostgreSQL, Free Tier: 0.5GB storage)
 - **Backend**: Render (FastAPI, Free Tier: 750 hours/month)
-- **Frontend**: Vercel (React, Free Tier: Unlimited)
+- **Frontend**: Render (React Static Site, Free Tier: 750 hours/month)
 
 ---
 
@@ -73,34 +73,32 @@ ENVIRONMENT=production
 
 ---
 
-## ⚡ Step 3: Deploy Frontend to Vercel
+## ⚡ Step 3: Deploy Frontend to Render
 
-### 3.1 Create Vercel Account
-1. Go to [vercel.com](https://vercel.com)
-2. Sign up with GitHub
-3. Click **New Project**
+### 3.1 Create Frontend Service
+1. In your Render dashboard, click **New** → **Static Site**
+2. Connect your GitHub repository
+3. Select your `MoView` repository
 
-### 3.2 Import Repository
-1. Select your `MoView` repository
-2. Vercel will detect it's a React app
-
-### 3.3 Configure Build Settings
-- **Framework Preset**: Create React App
+### 3.2 Configure Build Settings
+- **Name**: `moview-frontend` (or your preferred name)
 - **Root Directory**: `frontend`
-- **Build Command**: `npm run build`
-- **Output Directory**: `build`
+- **Build Command**: `npm ci && npm run build`
+- **Publish Directory**: `build`
 
-### 3.4 Configure Environment Variables
-In Vercel dashboard, add:
+### 3.3 Configure Environment Variables
+In Render dashboard, go to **Environment** tab and add:
 
 ```bash
-REACT_APP_API_URL=https://your-app-name.onrender.com
+REACT_APP_API_URL=https://your-backend-app-name.onrender.com
 ```
 
-### 3.5 Deploy
-1. Click **Deploy**
-2. Wait for deployment (1-2 minutes)
-3. Your app will be live at: `https://your-project.vercel.app`
+**Note**: Replace `your-backend-app-name` with your actual backend service name from Step 2.
+
+### 3.4 Deploy
+1. Click **Create Static Site**
+2. Wait for deployment (2-3 minutes)
+3. Your app will be live at: `https://your-frontend-name.onrender.com`
 
 ---
 
@@ -111,13 +109,13 @@ If you get CORS errors, update `backend/main.py`:
 
 ```python
 allowed_origins = [
-    "https://your-project.vercel.app",  # Your Vercel domain
+    "https://your-frontend-name.onrender.com",  # Your Render frontend domain
     "http://localhost:3000",  # Keep for local development
 ]
 ```
 
 ### 4.2 Test Your Deployment
-1. Visit your Vercel URL
+1. Visit your Render frontend URL
 2. Try registering a new user
 3. Test movie search and reviews
 4. Check that data persists in NeonDB
@@ -129,15 +127,15 @@ allowed_origins = [
 | Service | Free Tier Limits | Monthly Cost |
 |---------|------------------|--------------|
 | **NeonDB** | 0.5GB storage, 1 database | $0 |
-| **Render** | 750 hours, 0.5GB RAM, auto-sleep | $0 |
-| **Vercel** | Unlimited deployments | $0 |
+| **Render Backend** | 750 hours, 0.5GB RAM, auto-sleep | $0 |
+| **Render Frontend** | 750 hours, free static site hosting | $0 |
 | **Total** | | **$0/month** |
 
 ---
 
 ## Continuous Deployment
 
-Both Render and Vercel will automatically redeploy when you push to your main branch!
+Both Render services (backend and frontend) will automatically redeploy when you push to your main branch!
 
 ```bash
 # Make changes
@@ -145,7 +143,7 @@ git add .
 git commit -m "Add new feature"
 git push origin main
 
-# Both services will automatically redeploy! 🎉
+# Both services will automatically redeploy! 
 ```
 
 ---
@@ -159,11 +157,11 @@ git push origin main
 - Check DATABASE_URL in Render environment variables
 
 **2. CORS Errors**
-- Add your Vercel domain to allowed_origins in `backend/main.py`
+- Add your Render frontend domain to allowed_origins in `backend/main.py`
 - Redeploy Render service
 
 **3. API Not Found (404)**
-- Verify REACT_APP_API_URL in Vercel environment variables
+- Verify REACT_APP_API_URL in Render frontend environment variables
 - Check Render deployment logs
 
 **4. Build Failures**
@@ -184,8 +182,8 @@ git push origin main
 # Manual redeploy
 # Go to your service → Manual Deploy
 
-# Check Vercel deployment
-vercel --prod
+# Check Render deployment status
+# (Check in Render dashboard)
 ```
 
 ---
@@ -194,7 +192,7 @@ vercel --prod
 
 Your MoView app is now live and scalable! Share your deployment URLs:
 
-- **Frontend**: `https://your-project.vercel.app`
+- **Frontend**: `https://your-frontend-name.onrender.com`
 - **Backend API**: `https://your-app-name.onrender.com`
 - **Database**: Managed by NeonDB
 
@@ -209,7 +207,7 @@ Your MoView app is now live and scalable! Share your deployment URLs:
 ## Support
 
 If you encounter issues:
-1. Check service status pages (neon.tech/status, render.com/status, vercel.com/status)  
+1. Check service status pages (neon.tech/status, render.com/status)  
 2. Review deployment logs
 3. Verify environment variables
 4. Test API endpoints manually

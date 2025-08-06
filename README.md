@@ -41,8 +41,7 @@ A modern movie review website built with React, FastAPI, and TMDB API integratio
 - **Groq API** - AI-powered movie recommendations
 
 ### Deployment & DevOps
-- **Render** - Backend hosting (FastAPI)
-- **Vercel** - Frontend hosting (React)
+- **Render** - Full-stack hosting (FastAPI backend + React frontend)
 - **NeonDB** - PostgreSQL database hosting
 - **Docker & Docker Compose** - Local development containerization
 - **GitHub Actions** - CI/CD pipeline
@@ -239,7 +238,7 @@ python3 deploy_check.py
 The application is currently deployed using modern cloud services:
 
 ### Production Stack
-- **Frontend**: [Vercel](https://vercel.com) - React hosting with auto-deployment
+- **Frontend**: [Render](https://render.com) - React static site hosting (750 hours/month free)
 - **Backend**: [Render](https://render.com) - FastAPI hosting (750 hours/month free)
 - **Database**: [NeonDB](https://neon.tech) - Serverless PostgreSQL
 - **CI/CD**: GitHub Actions for automated deployments
@@ -304,6 +303,5 @@ Create your own sample data: `python3 create_sample_data.py`
 - [FastAPI](https://fastapi.tiangolo.com/) for the excellent Python web framework
 - [React](https://reactjs.org/) for the powerful frontend framework
 - [TailwindCSS](https://tailwindcss.com/) for beautiful utility-first CSS
-- [Render](https://render.com/) for reliable backend hosting
-- [Vercel](https://vercel.com/) for seamless frontend deployment
+- [Render](https://render.com/) for reliable full-stack hosting
 - [NeonDB](https://neon.tech/) for serverless PostgreSQL hosting
