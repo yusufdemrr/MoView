@@ -185,13 +185,14 @@ groq_client = None
 if GROQ_API_KEY:
     try:
         groq_client = Groq(api_key=GROQ_API_KEY)
-        print("Groq client initialized successfully")
+        print(f"✅ Groq client initialized successfully with key: {GROQ_API_KEY[:10]}...")
     except Exception as e:
-        print(f"Failed to initialize Groq client: {e}")
+        print(f"❌ Failed to initialize Groq client: {e}")
         print("Recommendation system will use fallback method")
         groq_client = None
 else:
-    print("No GROQ_API_KEY provided, using fallback recommendations")
+    print("❌ No GROQ_API_KEY provided, using fallback recommendations")
+    print(f"Environment variables available: {list(os.environ.keys())}")
 
 async def get_movie_metadata_from_tmdb(movie_id: int) -> Optional[dict]:
     """Get detailed movie metadata including genres and keywords from TMDb API"""
@@ -374,7 +375,9 @@ async def get_movie_recommendations(user_id: str, db: Session = Depends(get_db))
         
         if groq_client:
             try:
-                print("Generating AI recommendations with Groq...")
+                print("🤖 Generating AI recommendations with Groq...")
+                print(f"🤖 Groq client status: {groq_client is not None}")
+                print(f"🤖 User preferences length: {len(preferences)} characters")
                 prompt = f"""
                 You are a movie recommendation expert. Based on this detailed user profile with genre preferences and movie metadata, recommend exactly 4 movies they would love.
                 
@@ -465,10 +468,12 @@ async def get_movie_recommendations(user_id: str, db: Session = Depends(get_db))
                 # Fallback to basic recommendations if AI fails
                 pass
         else:
-            print("No Groq client available, using fallback recommendations")
+            print("❌ No Groq client available, using fallback recommendations")
+            print(f"❌ Groq client is None: {groq_client is None}")
         
         # Fallback recommendations if AI failed or no Groq client
         if not recommendations:
+            print("🔄 Using fallback recommendations (AI failed or no Groq client)...")
             fallback_movies = [
                 "The Shawshank Redemption",
                 "The Godfather", 
