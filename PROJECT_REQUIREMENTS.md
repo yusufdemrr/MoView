@@ -35,7 +35,7 @@ The technology stack is designed with a modern, scalable architecture encompassi
 
 ### Deployment and DevOps
 - **Render.com** - Backend hosting with 750 hours/month free tier
-- **Vercel** - Frontend hosting with unlimited deployments
+- **Render** - Frontend static site hosting with free tier
 - **Docker** - Local development containerization
 - **Docker Compose** - Multi-service orchestration
 - **GitHub Actions** - Continuous integration and deployment
@@ -178,7 +178,7 @@ CREATE TABLE reviews (
 ## 8. Deployment Architecture
 
 ### 8.1 Production Stack
-- **Frontend Hosting** - Vercel with automatic SSL and CDN
+- **Frontend Hosting** - Render static site with automatic SSL and CDN
 - **Backend Hosting** - Render with health checks and auto-scaling
 - **Database Hosting** - NeonDB with connection pooling and SSL
 - **Asset Delivery** - TMDb CDN for movie images
@@ -249,9 +249,8 @@ MoView/
 │   │   │   └── api.js            # HTTP requests
 │   │   ├── App.js            # Main application
 │   │   └── index.js          # Application entry
-│   ├── package.json          # Node.js dependencies
-│   ├── Dockerfile           # Frontend containerization
-│   └── vercel.json          # Deployment configuration
+│   ├── package.json          # Node.js dependencies and scripts
+│   └── Dockerfile           # Frontend containerization
 ├── .github/workflows/        # CI/CD automation
 ├── create_sample_data.py     # Database seeding
 ├── deploy_check.py          # Deployment validation
@@ -312,12 +311,12 @@ MoView/
 ### 13.1 Current Operational Costs
 - **Database (NeonDB)**: $0/month (0.5GB free tier)
 - **Backend (Render)**: $0/month (750 hours free tier)
-- **Frontend (Vercel)**: $0/month (unlimited deployments)
+- **Frontend (Render)**: $0/month (750 hours free tier)
 - **Total Monthly Cost**: $0 for MVP usage
 
 ### 13.2 Scaling Costs
 - **NeonDB Pro**: $19/month (unlimited storage)
 - **Render Starter**: $7/month (no sleep, custom domains)
-- **Vercel Pro**: $20/month (enhanced performance)
+- **Render Pro**: $25/month (enhanced performance and priority support)
 
 This requirements document reflects the current state of the MoView application as a fully functional, production-ready movie review platform with modern architecture and deployment practices.
