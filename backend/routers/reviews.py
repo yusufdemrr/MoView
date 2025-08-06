@@ -204,7 +204,7 @@ if GROQ_API_KEY:
             print("🧪 Testing Groq client with a simple request...")
             test_response = groq_client.chat.completions.create(
                 messages=[{"role": "user", "content": "Say hello"}],
-                model="mixtral-8x7b-32768",
+                model="llama-3.3-70b-versatile",
                 max_tokens=5
             )
             print("✅ Groq client test successful!")
@@ -230,7 +230,7 @@ else:
 print(f"🎯 Final groq_client status: {groq_client is not None}")
 
 # Alternative Groq API function using direct HTTP requests
-async def groq_api_request(messages, model="mixtral-8x7b-32768", max_tokens=1000, temperature=0.7):
+async def groq_api_request(messages, model="llama-3.3-70b-versatile", max_tokens=1000, temperature=0.7):
     """Make direct HTTP request to Groq API as fallback"""
     if not GROQ_API_KEY:
         return None
@@ -506,7 +506,7 @@ async def get_movie_recommendations(user_id: str, db: Session = Depends(get_db))
                             "content": prompt
                         }
                     ],
-                    model="mixtral-8x7b-32768",
+                    model="llama-3.3-70b-versatile",
                     temperature=0.7,
                     max_tokens=1000
                 )
