@@ -181,53 +181,13 @@ async def get_movie_rating_stats(movie_id: int, db: Session = Depends(get_db)):
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 
-print(f"🔍 GROQ_API_KEY exists: {GROQ_API_KEY is not None}")
-print(f"🔍 GROQ_API_KEY length: {len(GROQ_API_KEY) if GROQ_API_KEY else 0}")
-print(f"🔍 GROQ_API_KEY starts with 'gsk_': {GROQ_API_KEY.startswith('gsk_') if GROQ_API_KEY else False}")
-
 groq_client = None
 if GROQ_API_KEY:
     try:
-        print(f"🔄 Attempting to initialize Groq client with version 0.8.0...")
-        
-        # Import with explicit version check
         import groq
-        print(f"🔍 Groq library version: {groq.__version__}")
-        
-        # Simple initialization without extra parameters
         groq_client = groq.Groq(api_key=GROQ_API_KEY)
-        print(f"✅ Groq client initialized successfully")
-        print(f"✅ Groq client type: {type(groq_client)}")
-        
-        # Test a simple API call to verify the client works
-        try:
-            print("🧪 Testing Groq client with a simple request...")
-            test_response = groq_client.chat.completions.create(
-                messages=[{"role": "user", "content": "Say hello"}],
-                model="llama-3.3-70b-versatile",
-                max_tokens=5
-            )
-            print("✅ Groq client test successful!")
-            print(f"✅ Test response: {test_response.choices[0].message.content}")
-        except Exception as test_error:
-            print(f"❌ Groq client test failed: {test_error}")
-            # Don't set to None if initialization worked but test failed
-            # The client might still work for recommendations
-            print("⚠️ Keeping client despite test failure - will try in recommendations")
-            
-    except Exception as e:
-        print(f"❌ Failed to initialize Groq client: {e}")
-        print(f"❌ Error type: {type(e)}")
-        import traceback
-        print(f"❌ Full traceback: {traceback.format_exc()}")
-        print("Recommendation system will use fallback method")
+    except Exception:
         groq_client = None
-else:
-    print("❌ No GROQ_API_KEY provided, using fallback recommendations")
-    print(f"Environment variables with 'GROQ': {[k for k in os.environ.keys() if 'GROQ' in k.upper()]}")
-    print(f"Environment variables with 'API': {[k for k in os.environ.keys() if 'API' in k.upper()]}")
-
-print(f"🎯 Final groq_client status: {groq_client is not None}")
 
 # Alternative Groq API function using direct HTTP requests
 async def groq_api_request(messages, model="llama-3.3-70b-versatile", max_tokens=1000, temperature=0.7):
@@ -253,32 +213,8 @@ async def groq_api_request(messages, model="llama-3.3-70b-versatile", max_tokens
         response = requests.post(url, headers=headers, json=data, timeout=30)
         response.raise_for_status()
         return response.json()
-    except Exception as e:
-        print(f"❌ Direct Groq API request failed: {e}")
+    except Exception:
         return None
-
-@router.get("/groq-status")
-async def check_groq_status():
-    """Health check endpoint for Groq API integration"""
-    # Test direct API request as well
-    direct_api_test = None
-    if GROQ_API_KEY:
-        try:
-            direct_api_test = await groq_api_request([{"role": "user", "content": "Hello"}], max_tokens=5)
-            direct_api_works = direct_api_test is not None
-        except:
-            direct_api_works = False
-    else:
-        direct_api_works = False
-    
-    return {
-        "groq_api_key_exists": GROQ_API_KEY is not None,
-        "groq_api_key_length": len(GROQ_API_KEY) if GROQ_API_KEY else 0,
-        "groq_client_initialized": groq_client is not None,
-        "groq_client_type": str(type(groq_client)) if groq_client else "None",
-        "direct_api_works": direct_api_works,
-        "direct_api_response": direct_api_test
-    }
 
 async def get_movie_metadata_from_tmdb(movie_id: int) -> Optional[dict]:
     """Get detailed movie metadata including genres and keywords from TMDb API"""
@@ -318,8 +254,7 @@ async def get_movie_metadata_from_tmdb(movie_id: int) -> Optional[dict]:
             "production_companies": [company["name"] for company in movie_details.get("production_companies", [])[:3]]
         }
         
-    except Exception as e:
-        print(f"Error fetching metadata for movie {movie_id}: {e}")
+    except Exception:
         return None
 
 async def get_user_movie_preferences_enhanced(user_reviews: List[Review]) -> str:
@@ -420,8 +355,8 @@ async def get_movie_details_from_tmdb(movie_title: str) -> Optional[dict]:
                 "release_date": movie.get("release_date", ""),
                 "vote_average": movie.get("vote_average", 0.0)
             }
-    except Exception as e:
-        print(f"Error fetching movie details for '{movie_title}': {e}")
+    except Exception:
+        pass
     
     return None
 
@@ -429,30 +364,21 @@ async def get_movie_details_from_tmdb(movie_title: str) -> Optional[dict]:
 async def get_movie_recommendations(user_id: str, db: Session = Depends(get_db)):
     """Get personalized movie recommendations for a user using Groq AI"""
     try:
-        print(f"Starting recommendation generation for user: {user_id}")
-        
         # Verify user exists
         user = db.query(User).filter(User.id == user_id).first()
         if not user:
-            print(f"User not found: {user_id}")
             raise HTTPException(status_code=404, detail="User not found")
-        
-        print(f"User found: {user.username} ({user.id})")
         
         # Get user's reviews
         user_reviews = db.query(Review).filter(Review.user_id == user_id).all()
-        print(f"Found {len(user_reviews)} reviews for user")
         
         if not user_reviews:
             raise HTTPException(status_code=400, detail="User has no reviews yet. Please rate some movies first to get recommendations.")
         
         # Analyze user preferences with enhanced metadata
         try:
-            print("Analyzing user preferences with metadata...")
             preferences = await get_user_movie_preferences_enhanced(user_reviews)
-            print(f"Generated preferences profile: {len(preferences)} characters")
-        except Exception as e:
-            print(f"Error in preference analysis: {e}")
+        except Exception:
             # Fallback to basic preference analysis
             preferences = f"User has rated {len(user_reviews)} movies. Basic analysis available."
         
@@ -464,9 +390,6 @@ async def get_movie_recommendations(user_id: str, db: Session = Depends(get_db))
         
         if groq_client:
             try:
-                print("🤖 Generating AI recommendations with Groq client...")
-                print(f"🤖 Groq client status: {groq_client is not None}")
-                print(f"🤖 User preferences length: {len(preferences)} characters")
                 prompt = f"""
                 You are a movie recommendation expert. Based on this detailed user profile with genre preferences and movie metadata, recommend exactly 4 movies they would love.
                 
@@ -513,7 +436,6 @@ async def get_movie_recommendations(user_id: str, db: Session = Depends(get_db))
                 
                 # Parse the AI response
                 ai_response = chat_completion.choices[0].message.content.strip()
-                print(f"AI response received from Groq client: {ai_response[:100]}...")
                 
                 # Clean up the response to ensure it's valid JSON
                 if ai_response.startswith("```json"):
@@ -522,16 +444,12 @@ async def get_movie_recommendations(user_id: str, db: Session = Depends(get_db))
                 import json
                 try:
                     ai_recommendations = json.loads(ai_response)
-                    print(f"Successfully parsed {len(ai_recommendations)} AI recommendations")
-                except json.JSONDecodeError as je:
-                    print(f"JSON parsing error: {je}")
-                    print(f"Raw AI response: {ai_response}")
+                except json.JSONDecodeError:
                     ai_recommendations = []
                 
                 # Get movie details from TMDb for each recommendation
                 for i, rec in enumerate(ai_recommendations[:4]):  # Limit to 4 recommendations
                     try:
-                        print(f"Fetching details for recommendation {i+1}: {rec.get('title', 'Unknown')}")
                         movie_details = await get_movie_details_from_tmdb(rec["title"])
                         if movie_details:
                             recommendations.append(RecommendedMovie(
@@ -543,26 +461,14 @@ async def get_movie_recommendations(user_id: str, db: Session = Depends(get_db))
                                 vote_average=movie_details["vote_average"],
                                 reason=rec.get("reason", "Recommended based on your preferences")
                             ))
-                            print(f"Successfully added recommendation: {movie_details['title']}")
-                        else:
-                            print(f"Could not find TMDb details for: {rec.get('title', 'Unknown')}")
-                    except Exception as detail_error:
-                        print(f"Error processing recommendation {i+1}: {detail_error}")
+                    except Exception:
                         continue
-                
-            except Exception as e:
-                print(f"Error with Groq AI recommendations: {e}")
-                import traceback
-                print(f"Full traceback: {traceback.format_exc()}")
-                # Fallback to basic recommendations if AI fails
+
+            except Exception:
                 pass
         else:
-            print("❌ No Groq client available, trying direct API request...")
-            print(f"❌ Groq client is None: {groq_client is None}")
-            
             # Try direct API request as fallback
             try:
-                print("🌐 Attempting direct Groq API request...")
                 messages = [
                     {
                         "role": "system",
@@ -603,7 +509,6 @@ async def get_movie_recommendations(user_id: str, db: Session = Depends(get_db))
                 direct_api_result = await groq_api_request(messages, max_tokens=1000, temperature=0.7)
                 if direct_api_result and 'choices' in direct_api_result:
                     ai_response = direct_api_result['choices'][0]['message']['content'].strip()
-                    print(f"AI response received from direct API: {ai_response[:100]}...")
                     
                     # Clean up the response to ensure it's valid JSON
                     if ai_response.startswith("```json"):
@@ -613,11 +518,9 @@ async def get_movie_recommendations(user_id: str, db: Session = Depends(get_db))
                     import json
                     try:
                         ai_recommendations = json.loads(ai_response)
-                        print(f"Successfully parsed {len(ai_recommendations)} AI recommendations from direct API")
                         
                         for i, rec in enumerate(ai_recommendations[:4]):
                             try:
-                                print(f"Fetching details for recommendation {i+1}: {rec.get('title', 'Unknown')}")
                                 movie_details = await get_movie_details_from_tmdb(rec["title"])
                                 if movie_details:
                                     recommendations.append(RecommendedMovie(
@@ -629,43 +532,29 @@ async def get_movie_recommendations(user_id: str, db: Session = Depends(get_db))
                                         vote_average=movie_details["vote_average"],
                                         reason=rec.get("reason", "Recommended based on your preferences")
                                     ))
-                                    print(f"Successfully added recommendation: {movie_details['title']}")
-                                else:
-                                    print(f"Could not find TMDb details for: {rec.get('title', 'Unknown')}")
-                            except Exception as detail_error:
-                                print(f"Error processing recommendation {i+1}: {detail_error}")
+                            except Exception:
                                 continue
-                    except json.JSONDecodeError as je:
-                        print(f"JSON parsing error from direct API: {je}")
-                        print(f"Raw AI response: {ai_response}")
-                else:
-                    print("❌ Direct API request failed or returned no data")
-            except Exception as direct_error:
-                print(f"❌ Direct API request error: {direct_error}")
+                    except json.JSONDecodeError:
+                        pass
+            except Exception:
+                pass
         
         # Fallback recommendations if AI failed or no Groq client
         if not recommendations:
-            print("🔄 Using fallback recommendations (AI failed or no Groq client)...")
-            
             # Create varied fallback recommendations based on user's ratings
             import random
             
             # Different movie pools based on user preference analysis
             if "action" in preferences.lower() or "adventure" in preferences.lower():
                 fallback_movies = ["Mad Max: Fury Road", "John Wick", "The Matrix", "Inception"]
-                print("🎬 Using ACTION fallback recommendations")
             elif "drama" in preferences.lower() or "emotional" in preferences.lower():
                 fallback_movies = ["The Shawshank Redemption", "Forrest Gump", "Good Will Hunting", "A Beautiful Mind"]
-                print("🎬 Using DRAMA fallback recommendations")
             elif "comedy" in preferences.lower() or "funny" in preferences.lower():
                 fallback_movies = ["The Grand Budapest Hotel", "Superbad", "Groundhog Day", "The Big Lebowski"]
-                print("🎬 Using COMEDY fallback recommendations")
             elif "horror" in preferences.lower() or "thriller" in preferences.lower():
                 fallback_movies = ["Get Out", "A Quiet Place", "The Silence of the Lambs", "Hereditary"]
-                print("🎬 Using HORROR/THRILLER fallback recommendations")
             elif "sci-fi" in preferences.lower() or "science" in preferences.lower():
                 fallback_movies = ["Blade Runner 2049", "Interstellar", "Ex Machina", "Arrival"]
-                print("🎬 Using SCI-FI fallback recommendations")
             else:
                 # Default varied recommendations
                 all_fallback_options = [
@@ -675,7 +564,6 @@ async def get_movie_recommendations(user_id: str, db: Session = Depends(get_db))
                     ["Mad Max: Fury Road", "John Wick", "The Avengers", "Guardians of the Galaxy"]
                 ]
                 fallback_movies = random.choice(all_fallback_options)
-                print("🎬 Using RANDOM varied fallback recommendations")
             
             for movie_title in fallback_movies:
                 movie_details = await get_movie_details_from_tmdb(movie_title)
@@ -690,10 +578,7 @@ async def get_movie_recommendations(user_id: str, db: Session = Depends(get_db))
                         reason="Popular movie that many users enjoy"
                     ))
         
-        print(f"Final recommendations count: {len(recommendations)}")
-        
         if not recommendations:
-            print("No recommendations generated, returning empty list")
             return RecommendationResponse(
                 user_id=user_id,
                 recommendations=[]
@@ -704,11 +589,7 @@ async def get_movie_recommendations(user_id: str, db: Session = Depends(get_db))
             recommendations=recommendations[:4]  # Ensure max 4 recommendations
         )
         
-    except HTTPException as he:
-        print(f"HTTP Exception: {he.detail}")
+    except HTTPException:
         raise
     except Exception as e:
-        print(f"Unexpected error in recommendation generation: {e}")
-        import traceback
-        print(f"Full traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Failed to generate recommendations: {str(e)}") 
