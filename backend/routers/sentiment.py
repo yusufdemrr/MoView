@@ -12,13 +12,8 @@ groq_client = None
 if GROQ_API_KEY:
     try:
         groq_client = Groq(api_key=GROQ_API_KEY)
-        print("Groq client initialized successfully")
-    except Exception as e:
-        print(f"Failed to initialize Groq client: {e}")
-        print("Sentiment analysis will use fallback method")
+    except Exception:
         groq_client = None
-else:
-    print("No GROQ_API_KEY provided, using fallback sentiment analysis")
 
 class SentimentRequest(BaseModel):
     text: str = Field(..., min_length=1, max_length=1000, description="Text to analyze")
