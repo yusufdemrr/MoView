@@ -61,7 +61,7 @@ In Render dashboard, go to **Environment** tab and add:
 ```bash
 DATABASE_URL=postgresql://username:password@host.neondb.tech:5432/dbname?sslmode=require
 TMDB_API_KEY=your_tmdb_api_key_here
-GROQ_API_KEY=your_groq_api_key_here  
+GROQ_API_KEY=your_groq_api_key_here  # Optional - only needed for movie recommendations
 SECRET_KEY=your-super-secret-production-key-here
 ENVIRONMENT=production
 ```
