@@ -187,47 +187,41 @@ print(f"🔍 GROQ_API_KEY starts with 'gsk_': {GROQ_API_KEY.startswith('gsk_') i
 
 groq_client = None
 if GROQ_API_KEY:
-    # Try different initialization methods for compatibility
-    initialization_methods = [
-        # Method 1: Standard initialization (latest version)
-        lambda: Groq(api_key=GROQ_API_KEY),
-        # Method 2: With explicit base_url (if needed)
-        lambda: Groq(api_key=GROQ_API_KEY, base_url="https://api.groq.com/openai/v1"),
-        # Method 3: Minimal initialization
-        lambda: Groq(api_key=GROQ_API_KEY, timeout=30.0),
-    ]
-    
-    for i, init_method in enumerate(initialization_methods, 1):
+    try:
+        print(f"🔄 Attempting to initialize Groq client with version 0.8.0...")
+        
+        # Import with explicit version check
+        import groq
+        print(f"🔍 Groq library version: {groq.__version__}")
+        
+        # Simple initialization without extra parameters
+        groq_client = groq.Groq(api_key=GROQ_API_KEY)
+        print(f"✅ Groq client initialized successfully")
+        print(f"✅ Groq client type: {type(groq_client)}")
+        
+        # Test a simple API call to verify the client works
         try:
-            print(f"🔄 Attempting Groq initialization method {i}/3...")
-            groq_client = init_method()
-            print(f"✅ Groq client initialized successfully with method {i}")
-            print(f"✅ Groq client type: {type(groq_client)}")
+            print("🧪 Testing Groq client with a simple request...")
+            test_response = groq_client.chat.completions.create(
+                messages=[{"role": "user", "content": "Say hello"}],
+                model="mixtral-8x7b-32768",
+                max_tokens=5
+            )
+            print("✅ Groq client test successful!")
+            print(f"✅ Test response: {test_response.choices[0].message.content}")
+        except Exception as test_error:
+            print(f"❌ Groq client test failed: {test_error}")
+            # Don't set to None if initialization worked but test failed
+            # The client might still work for recommendations
+            print("⚠️ Keeping client despite test failure - will try in recommendations")
             
-            # Test a simple API call to verify the client works
-            try:
-                print("🧪 Testing Groq client with a simple request...")
-                test_response = groq_client.chat.completions.create(
-                    messages=[{"role": "user", "content": "Hello"}],
-                    model="mixtral-8x7b-32768",
-                    max_tokens=5,
-                    temperature=0.1
-                )
-                print("✅ Groq client test successful!")
-                break  # Success, stop trying other methods
-            except Exception as test_error:
-                print(f"❌ Groq client test failed with method {i}: {test_error}")
-                groq_client = None
-                continue  # Try next method
-                
-        except Exception as e:
-            print(f"❌ Failed to initialize Groq client with method {i}: {e}")
-            groq_client = None
-            continue  # Try next method
-    
-    if groq_client is None:
-        print("❌ All Groq initialization methods failed")
+    except Exception as e:
+        print(f"❌ Failed to initialize Groq client: {e}")
+        print(f"❌ Error type: {type(e)}")
+        import traceback
+        print(f"❌ Full traceback: {traceback.format_exc()}")
         print("Recommendation system will use fallback method")
+        groq_client = None
 else:
     print("❌ No GROQ_API_KEY provided, using fallback recommendations")
     print(f"Environment variables with 'GROQ': {[k for k in os.environ.keys() if 'GROQ' in k.upper()]}")
@@ -235,14 +229,55 @@ else:
 
 print(f"🎯 Final groq_client status: {groq_client is not None}")
 
+# Alternative Groq API function using direct HTTP requests
+async def groq_api_request(messages, model="mixtral-8x7b-32768", max_tokens=1000, temperature=0.7):
+    """Make direct HTTP request to Groq API as fallback"""
+    if not GROQ_API_KEY:
+        return None
+    
+    try:
+        import requests
+        
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {GROQ_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        data = {
+            "model": model,
+            "messages": messages,
+            "max_tokens": max_tokens,
+            "temperature": temperature
+        }
+        
+        response = requests.post(url, headers=headers, json=data, timeout=30)
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        print(f"❌ Direct Groq API request failed: {e}")
+        return None
+
 @router.get("/groq-status")
 async def check_groq_status():
     """Health check endpoint for Groq API integration"""
+    # Test direct API request as well
+    direct_api_test = None
+    if GROQ_API_KEY:
+        try:
+            direct_api_test = await groq_api_request([{"role": "user", "content": "Hello"}], max_tokens=5)
+            direct_api_works = direct_api_test is not None
+        except:
+            direct_api_works = False
+    else:
+        direct_api_works = False
+    
     return {
         "groq_api_key_exists": GROQ_API_KEY is not None,
         "groq_api_key_length": len(GROQ_API_KEY) if GROQ_API_KEY else 0,
         "groq_client_initialized": groq_client is not None,
-        "groq_client_type": str(type(groq_client)) if groq_client else "None"
+        "groq_client_type": str(type(groq_client)) if groq_client else "None",
+        "direct_api_works": direct_api_works,
+        "direct_api_response": direct_api_test
     }
 
 async def get_movie_metadata_from_tmdb(movie_id: int) -> Optional[dict]:
@@ -424,9 +459,12 @@ async def get_movie_recommendations(user_id: str, db: Session = Depends(get_db))
         # Use Groq AI to generate recommendations
         recommendations = []
         
+        # Try Groq client first, then direct API request
+        ai_response = None
+        
         if groq_client:
             try:
-                print("🤖 Generating AI recommendations with Groq...")
+                print("🤖 Generating AI recommendations with Groq client...")
                 print(f"🤖 Groq client status: {groq_client is not None}")
                 print(f"🤖 User preferences length: {len(preferences)} characters")
                 prompt = f"""
@@ -475,7 +513,7 @@ async def get_movie_recommendations(user_id: str, db: Session = Depends(get_db))
                 
                 # Parse the AI response
                 ai_response = chat_completion.choices[0].message.content.strip()
-                print(f"AI response received: {ai_response[:100]}...")
+                print(f"AI response received from Groq client: {ai_response[:100]}...")
                 
                 # Clean up the response to ensure it's valid JSON
                 if ai_response.startswith("```json"):
@@ -519,8 +557,91 @@ async def get_movie_recommendations(user_id: str, db: Session = Depends(get_db))
                 # Fallback to basic recommendations if AI fails
                 pass
         else:
-            print("❌ No Groq client available, using fallback recommendations")
+            print("❌ No Groq client available, trying direct API request...")
             print(f"❌ Groq client is None: {groq_client is None}")
+            
+            # Try direct API request as fallback
+            try:
+                print("🌐 Attempting direct Groq API request...")
+                messages = [
+                    {
+                        "role": "system",
+                        "content": "You are a movie recommendation expert. Always respond with valid JSON format only."
+                    },
+                    {
+                        "role": "user", 
+                        "content": f"""
+                        You are a movie recommendation expert. Based on this detailed user profile with genre preferences and movie metadata, recommend exactly 4 movies they would love.
+                        
+                        User's detailed movie profile:
+                        {preferences}
+                        
+                        Recommendation Guidelines:
+                        1. Prioritize movies that match their favorite genres and themes/keywords
+                        2. Consider their rating patterns and review content sentiment
+                        3. Avoid movies they've already rated
+                        4. Include a mix of popular classics and critically acclaimed films
+                        5. Ensure variety across different sub-genres while staying within their preferences
+                        6. Consider the specific elements they praised in their reviews
+                        
+                        For each recommendation, provide:
+                        - "title": the exact movie title (must be searchable on TMDb)
+                        - "reason": a personalized explanation (max 60 words) connecting the recommendation to their specific preferences, mentioning relevant genres/themes
+                        
+                        Format as a JSON array with exactly 4 objects:
+                        [
+                          {{"title": "Movie Title", "reason": "Matches your love for [specific genre/theme] seen in your high rating of [example movie]. Features [relevant elements] you praised."}},
+                          ...
+                        ]
+                        
+                        Focus on quality over quantity - each recommendation should feel personally curated for this user's taste profile.
+                        Return only the JSON array, no additional text.
+                        """
+                    }
+                ]
+                
+                direct_api_result = await groq_api_request(messages, max_tokens=1000, temperature=0.7)
+                if direct_api_result and 'choices' in direct_api_result:
+                    ai_response = direct_api_result['choices'][0]['message']['content'].strip()
+                    print(f"AI response received from direct API: {ai_response[:100]}...")
+                    
+                    # Clean up the response to ensure it's valid JSON
+                    if ai_response.startswith("```json"):
+                        ai_response = ai_response.replace("```json", "").replace("```", "").strip()
+                    
+                    # Process the AI response (same logic as client method)
+                    import json
+                    try:
+                        ai_recommendations = json.loads(ai_response)
+                        print(f"Successfully parsed {len(ai_recommendations)} AI recommendations from direct API")
+                        
+                        for i, rec in enumerate(ai_recommendations[:4]):
+                            try:
+                                print(f"Fetching details for recommendation {i+1}: {rec.get('title', 'Unknown')}")
+                                movie_details = await get_movie_details_from_tmdb(rec["title"])
+                                if movie_details:
+                                    recommendations.append(RecommendedMovie(
+                                        movie_id=movie_details["movie_id"],
+                                        title=movie_details["title"],
+                                        poster_path=movie_details["poster_path"],
+                                        overview=movie_details["overview"],
+                                        release_date=movie_details["release_date"],
+                                        vote_average=movie_details["vote_average"],
+                                        reason=rec.get("reason", "Recommended based on your preferences")
+                                    ))
+                                    print(f"Successfully added recommendation: {movie_details['title']}")
+                                else:
+                                    print(f"Could not find TMDb details for: {rec.get('title', 'Unknown')}")
+                            except Exception as detail_error:
+                                print(f"Error processing recommendation {i+1}: {detail_error}")
+                                continue
+                    except json.JSONDecodeError as je:
+                        print(f"JSON parsing error from direct API: {je}")
+                        print(f"Raw AI response: {ai_response}")
+                else:
+                    print("❌ Direct API request failed or returned no data")
+            except Exception as direct_error:
+                print(f"❌ Direct API request error: {direct_error}")
         
         # Fallback recommendations if AI failed or no Groq client
         if not recommendations:
