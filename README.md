@@ -4,7 +4,7 @@ A modern movie review website built with React, FastAPI, and TMDB API integratio
 
 ## Live Demo
 
-- **Frontend**: [https://moview-frontend-five.vercel.app/](https://moview-frontend-five.vercel.app/)
+- **Frontend**: [https://moview-frontend.onrender.com/](https://moview-frontend.onrender.com/)
 - **Backend API**: [https://moview-backend.onrender.com/](https://moview-backend.onrender.com/)
 - **API Documentation**: [https://moview-backend.onrender.com/docs](https://moview-backend.onrender.com/docs)
 
@@ -192,9 +192,8 @@ MoView/
 │   │   │   └── api.js            # Axios API client
 │   │   ├── App.js            # Main app with routing
 │   │   └── index.js          # App entry point
-│   ├── package.json          # Node.js dependencies
-│   ├── Dockerfile           # Frontend Docker config
-│   └── vercel.json          # Vercel deployment config
+│   ├── package.json          # Node.js dependencies and scripts
+│   └── Dockerfile           # Frontend Docker config
 ├── .github/workflows/        # GitHub Actions CI/CD
 ├── create_sample_data.py     # Sample data creation script
 ├── deploy_check.py          # Deployment readiness checker
