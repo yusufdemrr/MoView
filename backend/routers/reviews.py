@@ -14,6 +14,34 @@ from groq import Groq
 
 router = APIRouter()
 
+def simple_sentiment_analysis(text: str) -> str:
+    """Simple sentiment analysis based on keywords"""
+    text_lower = text.lower()
+    
+    positive_words = [
+        'good', 'great', 'excellent', 'amazing', 'love', 'best', 'awesome', 
+        'fantastic', 'wonderful', 'brilliant', 'outstanding', 'superb', 
+        'incredible', 'perfect', 'beautiful', 'stunning', 'masterpiece',
+        'enjoyable', 'entertaining', 'impressive', 'remarkable', 'exceptional'
+    ]
+    
+    negative_words = [
+        'bad', 'terrible', 'awful', 'hate', 'worst', 'horrible', 
+        'disappointing', 'boring', 'poor', 'waste', 'pathetic', 'garbage',
+        'stupid', 'ridiculous', 'annoying', 'frustrating', 'dreadful',
+        'mediocre', 'overrated', 'bland', 'tedious', 'unwatchable'
+    ]
+    
+    positive_score = sum(1 for word in positive_words if word in text_lower)
+    negative_score = sum(1 for word in negative_words if word in text_lower)
+    
+    if positive_score > negative_score:
+        return 'positive'
+    elif negative_score > positive_score:
+        return 'negative'
+    else:
+        return 'neutral'
+
 # Pydantic models for request/response
 class ReviewCreate(BaseModel):
     user_id: str = Field(..., description="User ID")
@@ -77,15 +105,8 @@ async def create_review(review_data: ReviewCreate, db: Session = Depends(get_db)
         db.commit()
         db.refresh(new_review)
         
-        # Perform sentiment analysis
-        try:
-            from routers.sentiment import analyze_sentiment, SentimentRequest
-            sentiment_request = SentimentRequest(text=review_data.content)
-            sentiment_result = await analyze_sentiment(sentiment_request)
-            new_review.sentiment = sentiment_result.sentiment
-        except Exception as e:
-            # If sentiment analysis fails, continue without it
-            new_review.sentiment = "neutral"
+        # Perform sentiment analysis using simple keyword-based method
+        new_review.sentiment = simple_sentiment_analysis(review_data.content)
         
         # Prepare response
         response = ReviewResponse(
