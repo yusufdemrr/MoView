@@ -17,10 +17,6 @@ const MyRatings = () => {
   // Use authenticated user ID, with demo user as fallback
   const demoUserId = '12345678-1234-5678-9012-123456789012';
   const userId = user?.id || demoUserId;
-  
-  // Debug logging
-  console.log('MyRatings - Current user:', user);
-  console.log('MyRatings - Using userId:', userId);
 
   useEffect(() => {
     const fetchUserReviews = async () => {
@@ -59,36 +55,19 @@ const MyRatings = () => {
   const fetchRecommendations = async () => {
     try {
       setLoadingRecommendations(true);
-      console.log('=== RECOMMENDATION DEBUG START ===');
-      console.log('User from context:', user);
-      console.log('Is authenticated:', isAuthenticated);
-      console.log('Token from localStorage:', localStorage.getItem('token'));
-      console.log('Final userId being used:', userId);
-      console.log('User ID type:', typeof userId);
-      console.log('User ID length:', userId ? userId.length : 'null');
-      console.log('=== MAKING API CALL ===');
       
       const response = await reviewsApi.getRecommendations(userId);
-      console.log('Recommendations response:', response.data);
       
       if (response.data.recommendations && response.data.recommendations.length > 0) {
         setRecommendations(response.data.recommendations);
         setShowRecommendations(true);
-        console.log('Successfully loaded recommendations for user:', userId);
       } else {
-        console.log('No recommendations received');
         setRecommendations([]);
         setShowRecommendations(true);
         alert('No recommendations available. This could be due to insufficient review data or temporary service issues.');
       }
     } catch (error) {
       console.error('Failed to fetch recommendations:', error);
-      console.error('Error details:', {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        message: error.message
-      });
       
       if (error.response?.status === 400) {
         alert('Please rate some movies first to get personalized recommendations!');
