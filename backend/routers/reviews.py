@@ -187,32 +187,47 @@ print(f"🔍 GROQ_API_KEY starts with 'gsk_': {GROQ_API_KEY.startswith('gsk_') i
 
 groq_client = None
 if GROQ_API_KEY:
-    try:
-        print(f"🔄 Attempting to initialize Groq client...")
-        groq_client = Groq(api_key=GROQ_API_KEY)
-        print(f"✅ Groq client initialized successfully with key: {GROQ_API_KEY[:10]}...")
-        print(f"✅ Groq client type: {type(groq_client)}")
-        
-        # Test a simple API call to verify the client works
+    # Try different initialization methods for compatibility
+    initialization_methods = [
+        # Method 1: Standard initialization (latest version)
+        lambda: Groq(api_key=GROQ_API_KEY),
+        # Method 2: With explicit base_url (if needed)
+        lambda: Groq(api_key=GROQ_API_KEY, base_url="https://api.groq.com/openai/v1"),
+        # Method 3: Minimal initialization
+        lambda: Groq(api_key=GROQ_API_KEY, timeout=30.0),
+    ]
+    
+    for i, init_method in enumerate(initialization_methods, 1):
         try:
-            print("🧪 Testing Groq client with a simple request...")
-            test_response = groq_client.chat.completions.create(
-                messages=[{"role": "user", "content": "Hello"}],
-                model="mixtral-8x7b-32768",
-                max_tokens=10
-            )
-            print("✅ Groq client test successful!")
-        except Exception as test_error:
-            print(f"❌ Groq client test failed: {test_error}")
-            groq_client = None
+            print(f"🔄 Attempting Groq initialization method {i}/3...")
+            groq_client = init_method()
+            print(f"✅ Groq client initialized successfully with method {i}")
+            print(f"✅ Groq client type: {type(groq_client)}")
             
-    except Exception as e:
-        print(f"❌ Failed to initialize Groq client: {e}")
-        print(f"❌ Error type: {type(e)}")
-        import traceback
-        print(f"❌ Full traceback: {traceback.format_exc()}")
+            # Test a simple API call to verify the client works
+            try:
+                print("🧪 Testing Groq client with a simple request...")
+                test_response = groq_client.chat.completions.create(
+                    messages=[{"role": "user", "content": "Hello"}],
+                    model="mixtral-8x7b-32768",
+                    max_tokens=5,
+                    temperature=0.1
+                )
+                print("✅ Groq client test successful!")
+                break  # Success, stop trying other methods
+            except Exception as test_error:
+                print(f"❌ Groq client test failed with method {i}: {test_error}")
+                groq_client = None
+                continue  # Try next method
+                
+        except Exception as e:
+            print(f"❌ Failed to initialize Groq client with method {i}: {e}")
+            groq_client = None
+            continue  # Try next method
+    
+    if groq_client is None:
+        print("❌ All Groq initialization methods failed")
         print("Recommendation system will use fallback method")
-        groq_client = None
 else:
     print("❌ No GROQ_API_KEY provided, using fallback recommendations")
     print(f"Environment variables with 'GROQ': {[k for k in os.environ.keys() if 'GROQ' in k.upper()]}")
