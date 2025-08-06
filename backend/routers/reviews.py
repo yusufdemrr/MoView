@@ -474,12 +474,36 @@ async def get_movie_recommendations(user_id: str, db: Session = Depends(get_db))
         # Fallback recommendations if AI failed or no Groq client
         if not recommendations:
             print("🔄 Using fallback recommendations (AI failed or no Groq client)...")
-            fallback_movies = [
-                "The Shawshank Redemption",
-                "The Godfather", 
-                "Pulp Fiction",
-                "The Dark Knight"
-            ]
+            
+            # Create varied fallback recommendations based on user's ratings
+            import random
+            
+            # Different movie pools based on user preference analysis
+            if "action" in preferences.lower() or "adventure" in preferences.lower():
+                fallback_movies = ["Mad Max: Fury Road", "John Wick", "The Matrix", "Inception"]
+                print("🎬 Using ACTION fallback recommendations")
+            elif "drama" in preferences.lower() or "emotional" in preferences.lower():
+                fallback_movies = ["The Shawshank Redemption", "Forrest Gump", "Good Will Hunting", "A Beautiful Mind"]
+                print("🎬 Using DRAMA fallback recommendations")
+            elif "comedy" in preferences.lower() or "funny" in preferences.lower():
+                fallback_movies = ["The Grand Budapest Hotel", "Superbad", "Groundhog Day", "The Big Lebowski"]
+                print("🎬 Using COMEDY fallback recommendations")
+            elif "horror" in preferences.lower() or "thriller" in preferences.lower():
+                fallback_movies = ["Get Out", "A Quiet Place", "The Silence of the Lambs", "Hereditary"]
+                print("🎬 Using HORROR/THRILLER fallback recommendations")
+            elif "sci-fi" in preferences.lower() or "science" in preferences.lower():
+                fallback_movies = ["Blade Runner 2049", "Interstellar", "Ex Machina", "Arrival"]
+                print("🎬 Using SCI-FI fallback recommendations")
+            else:
+                # Default varied recommendations
+                all_fallback_options = [
+                    ["The Shawshank Redemption", "The Godfather", "Pulp Fiction", "The Dark Knight"],
+                    ["Inception", "Interstellar", "The Matrix", "Blade Runner 2049"],
+                    ["Forrest Gump", "Good Will Hunting", "A Beautiful Mind", "The Pursuit of Happyness"],
+                    ["Mad Max: Fury Road", "John Wick", "The Avengers", "Guardians of the Galaxy"]
+                ]
+                fallback_movies = random.choice(all_fallback_options)
+                print("🎬 Using RANDOM varied fallback recommendations")
             
             for movie_title in fallback_movies:
                 movie_details = await get_movie_details_from_tmdb(movie_title)
