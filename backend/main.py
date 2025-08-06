@@ -19,8 +19,9 @@ app = FastAPI(
 allowed_origins = [
     "http://localhost:3000",  # Local development
     "http://frontend:80",     # Docker
-    "https://*.vercel.app",   # Vercel deployments
+    "https://*.vercel.app",   # Vercel deployments (keeping for backward compatibility)
     "https://*.onrender.com", # Render deployments
+    "https://moview-frontend.onrender.com", # Specific Render frontend URL
 ]
 
 # Allow all origins in production for flexibility (you can restrict this later)
