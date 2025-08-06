@@ -10,9 +10,17 @@ const MyRatings = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [moviesData, setMoviesData] = useState({});
+  const [recommendations, setRecommendations] = useState([]);
+  const [loadingRecommendations, setLoadingRecommendations] = useState(false);
+  const [showRecommendations, setShowRecommendations] = useState(false);
 
-  // Use authenticated user ID or demo user ID as fallback
-  const userId = user?.id || '12345678-1234-5678-9012-123456789012';
+  // Use authenticated user ID, with demo user as fallback
+  const demoUserId = '12345678-1234-5678-9012-123456789012';
+  const userId = user?.id || demoUserId;
+  
+  // Debug logging
+  console.log('MyRatings - Current user:', user);
+  console.log('MyRatings - Using userId:', userId);
 
   useEffect(() => {
     const fetchUserReviews = async () => {
@@ -47,6 +55,57 @@ const MyRatings = () => {
 
     fetchUserReviews();
   }, [userId]);
+
+  const fetchRecommendations = async () => {
+    try {
+      setLoadingRecommendations(true);
+      console.log('=== RECOMMENDATION DEBUG START ===');
+      console.log('User from context:', user);
+      console.log('Is authenticated:', isAuthenticated);
+      console.log('Token from localStorage:', localStorage.getItem('token'));
+      console.log('Final userId being used:', userId);
+      console.log('User ID type:', typeof userId);
+      console.log('User ID length:', userId ? userId.length : 'null');
+      console.log('=== MAKING API CALL ===');
+      
+      const response = await reviewsApi.getRecommendations(userId);
+      console.log('Recommendations response:', response.data);
+      
+      if (response.data.recommendations && response.data.recommendations.length > 0) {
+        setRecommendations(response.data.recommendations);
+        setShowRecommendations(true);
+        console.log('Successfully loaded recommendations for user:', userId);
+      } else {
+        console.log('No recommendations received');
+        setRecommendations([]);
+        setShowRecommendations(true);
+        alert('No recommendations available. This could be due to insufficient review data or temporary service issues.');
+      }
+    } catch (error) {
+      console.error('Failed to fetch recommendations:', error);
+      console.error('Error details:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message
+      });
+      
+      if (error.response?.status === 400) {
+        alert('Please rate some movies first to get personalized recommendations!');
+      } else if (error.response?.status === 404) {
+        alert('Demo user data not found. Please ensure the sample data is loaded in the database.');
+      } else if (error.response?.status === 500) {
+        const errorMsg = error.response?.data?.detail || 'Internal server error';
+        alert(`Server error: ${errorMsg}`);
+      } else if (error.code === 'NETWORK_ERROR' || !error.response) {
+        alert('Network error: Please check your connection and try again.');
+      } else {
+        alert(`Failed to load recommendations: ${error.message || 'Unknown error'}. Please try again later.`);
+      }
+    } finally {
+      setLoadingRecommendations(false);
+    }
+  };
 
   const renderStars = (rating, size = 'text-lg') => {
     const stars = [];
@@ -134,6 +193,102 @@ const MyRatings = () => {
               </div>
               <div className="text-gray-300">Positive Reviews</div>
             </div>
+          </div>
+        </div>
+
+        {/* Recommendations Section */}
+        <div className="mb-8">
+          <div className="backdrop-blur-lg bg-white/5 rounded-3xl border border-white/10 p-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-white">Recommended for You</h2>
+              <button
+                onClick={fetchRecommendations}
+                disabled={loadingRecommendations || reviews.length === 0}
+                className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300 font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {loadingRecommendations ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Getting Recommendations...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                    Get Recommendations
+                  </>
+                )}
+              </button>
+            </div>
+
+            {!showRecommendations && !loadingRecommendations && (
+              <div className="text-center py-8">
+                <div className="text-4xl mb-4">🎭</div>
+                <p className="text-gray-400 mb-4">
+                  {reviews.length === 0 
+                    ? "Rate some movies first to get personalized recommendations!"
+                    : "Click the button above to discover movies you might love based on your ratings!"
+                  }
+                </p>
+              </div>
+            )}
+
+            {showRecommendations && recommendations.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {recommendations.map((movie) => (
+                  <div 
+                    key={movie.movie_id}
+                    className="group cursor-pointer"
+                    onClick={() => navigate(`/movie/${movie.movie_id}`)}
+                  >
+                    <div className="backdrop-blur-lg bg-white/5 rounded-2xl border border-white/10 p-4 hover:border-purple-500/50 transition-all duration-300 hover:scale-105">
+                      <div className="aspect-[2/3] mb-4 overflow-hidden rounded-lg">
+                        {movie.poster_path ? (
+                          <img
+                            src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                            alt={movie.title}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-purple-800 to-purple-900 flex items-center justify-center">
+                            <span className="text-white text-sm text-center p-2">
+                              {movie.title}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <h3 className="text-white font-semibold text-sm group-hover:text-purple-300 transition-colors truncate">
+                          {movie.title}
+                        </h3>
+                        
+                        <div className="flex items-center gap-1 text-yellow-400">
+                          <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                          </svg>
+                          <span className="text-sm">{movie.vote_average.toFixed(1)}</span>
+                        </div>
+                        
+                        <p className="text-gray-400 text-xs leading-relaxed">
+                          {movie.reason}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {showRecommendations && recommendations.length === 0 && (
+              <div className="text-center py-8">
+                <div className="text-4xl mb-4">😕</div>
+                <p className="text-gray-400">
+                  Sorry, we couldn't find any recommendations at the moment. Please try again later!
+                </p>
+              </div>
+            )}
           </div>
         </div>
 

@@ -20,6 +20,7 @@ export const reviewsApi = {
   getByMovieId: (movieId) => api.get(`/reviews/${movieId}`),
   getByUserId: (userId) => api.get(`/reviews/user/${userId}`),
   getMovieStats: (movieId) => api.get(`/reviews/stats/${movieId}`),
+  getRecommendations: (userId) => api.get(`/reviews/recommendations/${userId}`),
 };
 
 // Sentiment API
