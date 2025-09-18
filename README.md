@@ -8,7 +8,7 @@ A modern movie review website built with React, FastAPI, and TMDB API integratio
 - **Backend API**: [https://moview-backend.onrender.com/](https://moview-backend.onrender.com/)
 - **API Documentation**: [https://moview-backend.onrender.com/docs](https://moview-backend.onrender.com/docs)
 
-
+<img width="1497" height="862" alt="image" src="https://github.com/user-attachments/assets/f370a848-2b49-467f-8e59-03879bcd2844" />
 
 ## Features
 
